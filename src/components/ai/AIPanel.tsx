@@ -51,7 +51,7 @@ export function AIPanel() {
 
   // Get current AI provider
   const currentProvider = typeof window !== 'undefined'
-    ? localStorage.getItem('promptica-ai-provider') || 'claude-cli'
+    ? localStorage.getItem('avalon-ai-provider') || 'claude-cli'
     : 'claude-cli';
 
   // Fetch models from API
@@ -63,7 +63,7 @@ export function AIPanel() {
         return;
       }
 
-      const apiKey = sessionStorage.getItem('promptica-api-key');
+      const apiKey = sessionStorage.getItem('avalon-api-key');
       if (!apiKey) {
         // Fallback models if no API key
         setModels([{ id: 'default', name: 'Model seçin...' }]);
@@ -82,12 +82,12 @@ export function AIPanel() {
           if (fetchedModels && fetchedModels.length > 0) {
             setModels(fetchedModels);
             // Restore saved model or use first
-            const savedModel = sessionStorage.getItem('promptica-ai-model');
+            const savedModel = sessionStorage.getItem('avalon-ai-model');
             if (savedModel && fetchedModels.some(m => m.id === savedModel)) {
               setSelectedModel(savedModel);
             } else {
               setSelectedModel(fetchedModels[0].id);
-              sessionStorage.setItem('promptica-ai-model', fetchedModels[0].id);
+              sessionStorage.setItem('avalon-ai-model', fetchedModels[0].id);
             }
           }
         }
@@ -114,7 +114,7 @@ export function AIPanel() {
   // Save model selection
   const handleModelChange = (modelId: string) => {
     setSelectedModel(modelId);
-    sessionStorage.setItem('promptica-ai-model', modelId);
+    sessionStorage.setItem('avalon-ai-model', modelId);
   };
 
   const providerNames: Record<string, string> = {

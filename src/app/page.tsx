@@ -47,7 +47,7 @@ function Logo({ size = 48, className = '' }: { size?: number; className?: string
   return (
     <Image
       src="/logo.png"
-      alt="Promptica"
+      alt="Avalon"
       width={size}
       height={size}
       className={`rounded-xl ${className}`}
@@ -57,7 +57,7 @@ function Logo({ size = 48, className = '' }: { size?: number; className?: string
 
 // GitHub releases URL
 const GITHUB_RELEASES = 'https://github.com/radioheavy/prompto/releases/latest';
-const MAC_DOWNLOAD = 'https://github.com/radioheavy/prompto/releases/download/v0.1.0/Promptica_0.1.0_aarch64.dmg';
+const MAC_DOWNLOAD = 'https://github.com/radioheavy/prompto/releases/download/v0.1.0/Avalon_0.1.0_aarch64.dmg';
 const WINDOWS_DOWNLOAD = 'https://github.com/radioheavy/prompto/releases/latest'; // Windows build coming soon
 
 // Screenshot data
@@ -220,7 +220,7 @@ function LandingPage() {
       <section className="container mx-auto px-4 py-20 text-center">
         <div className="flex items-center justify-center gap-3 mb-6">
           <Logo size={56} />
-          <h1 className="text-5xl font-bold">Promptica</h1>
+          <h1 className="text-5xl font-bold">Avalon</h1>
         </div>
 
         <p className="text-xl text-muted-foreground max-w-2xl mx-auto mb-4">
@@ -378,7 +378,7 @@ function LandingPage() {
               <div className="flex items-start gap-6 relative">
                 <div className="w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-bold shrink-0 z-10">1</div>
                 <div className="pt-1">
-                  <h3 className="font-semibold mb-1">Promptica'yı İndir</h3>
+                  <h3 className="font-semibold mb-1">Avalon'yı İndir</h3>
                   <p className="text-muted-foreground text-sm">Yukarıdaki butona tıkla, DMG dosyasını aç, uygulamayı Applications'a sürükle.</p>
                 </div>
               </div>
@@ -405,7 +405,7 @@ function LandingPage() {
 
       {/* Benefits */}
       <section className="container mx-auto px-4 py-16">
-        <h2 className="text-3xl font-bold text-center mb-4">Neden Promptica?</h2>
+        <h2 className="text-3xl font-bold text-center mb-4">Neden Avalon?</h2>
         <p className="text-center text-muted-foreground mb-12">Prompt yönetimini kolaylaştıran özellikler</p>
 
         <div className="max-w-2xl mx-auto grid sm:grid-cols-2 gap-4">
@@ -445,7 +445,7 @@ function LandingPage() {
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-muted-foreground">
           <div className="flex items-center gap-2">
             <Logo size={20} />
-            <span>Promptica</span>
+            <span>Avalon</span>
           </div>
 
           <div className="flex items-center gap-4">
@@ -525,7 +525,7 @@ function EditorView({ prompt, onBack }: { prompt: Prompt; onBack: () => void }) 
   };
 
   // Get current AI provider
-  const currentProvider = localStorage.getItem('promptica-ai-provider') || 'claude-cli';
+  const currentProvider = localStorage.getItem('avalon-ai-provider') || 'claude-cli';
   const providerNames: Record<string, string> = {
     'claude-cli': 'Claude CLI',
     'openai': 'OpenAI',
@@ -709,12 +709,12 @@ function OnboardingScreen({ onComplete }: { onComplete: () => void }) {
 
   const handleComplete = (provider: AIProvider, key?: string) => {
     // AI ayarlarını localStorage'a kaydet (sadece provider, key session'da)
-    localStorage.setItem('promptica-ai-provider', provider);
+    localStorage.setItem('avalon-ai-provider', provider);
     if (key) {
       // Session storage - tarayıcı kapanınca silinir
-      sessionStorage.setItem('promptica-api-key', key);
+      sessionStorage.setItem('avalon-api-key', key);
     }
-    localStorage.setItem('promptica-onboarding-complete', 'true');
+    localStorage.setItem('avalon-onboarding-complete', 'true');
     onComplete();
   };
 
@@ -774,7 +774,7 @@ function OnboardingScreen({ onComplete }: { onComplete: () => void }) {
               <div className="mx-auto mb-4">
                 <Logo size={56} />
               </div>
-              <h1 className="text-2xl font-bold mb-2">Promptica'ya Hoş Geldin!</h1>
+              <h1 className="text-2xl font-bold mb-2">Avalon'ya Hoş Geldin!</h1>
               <p className="text-muted-foreground">
                 AI bağlantı yöntemini seç
               </p>
@@ -1022,7 +1022,7 @@ function MobileLanding() {
       {/* Header */}
       <div className="pt-12 pb-6 px-6 text-center">
         <Logo size={64} className="mx-auto mb-4" />
-        <h1 className="text-3xl font-bold mb-2">Promptica</h1>
+        <h1 className="text-3xl font-bold mb-2">Avalon</h1>
         <p className="text-muted-foreground">AI Prompt Editörü</p>
       </div>
 
@@ -1179,12 +1179,12 @@ function EditorApp() {
   // Onboarding durumunu kontrol et
   useEffect(() => {
     // DEV: Onboarding'i görmek için temizle
-    localStorage.removeItem('promptica-onboarding-complete');
-    localStorage.removeItem('promptica-ai-provider');
-    sessionStorage.removeItem('promptica-api-key');
-    sessionStorage.removeItem('promptica-ai-model');
+    localStorage.removeItem('avalon-onboarding-complete');
+    localStorage.removeItem('avalon-ai-provider');
+    sessionStorage.removeItem('avalon-api-key');
+    sessionStorage.removeItem('avalon-ai-model');
 
-    const completed = localStorage.getItem('promptica-onboarding-complete');
+    const completed = localStorage.getItem('avalon-onboarding-complete');
     setOnboardingComplete(completed === 'true');
   }, []);
 
@@ -1281,7 +1281,7 @@ function EditorApp() {
   };
 
   // Get current AI provider
-  const currentProvider = localStorage.getItem('promptica-ai-provider') || 'claude-cli';
+  const currentProvider = localStorage.getItem('avalon-ai-provider') || 'claude-cli';
   const providerNames: Record<string, string> = {
     'claude-cli': 'Claude CLI',
     'openai': 'OpenAI',
@@ -1302,7 +1302,7 @@ function EditorApp() {
         <div className="max-w-6xl mx-auto px-6 h-14 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
             <Logo size={28} />
-            <span className="font-semibold text-neutral-800">Promptica</span>
+            <span className="font-semibold text-neutral-800">Avalon</span>
           </div>
 
           <div className="flex items-center gap-2">
@@ -1564,9 +1564,9 @@ function EditorApp() {
                 variant="outline"
                 className="w-full h-11 rounded-xl"
                 onClick={() => {
-                  localStorage.removeItem('promptica-onboarding-complete');
-                  localStorage.removeItem('promptica-ai-provider');
-                  sessionStorage.removeItem('promptica-api-key');
+                  localStorage.removeItem('avalon-onboarding-complete');
+                  localStorage.removeItem('avalon-ai-provider');
+                  sessionStorage.removeItem('avalon-api-key');
                   window.location.reload();
                 }}
               >
@@ -1614,9 +1614,9 @@ function MobileApp() {
 
   // Check if already set up
   useEffect(() => {
-    const isComplete = localStorage.getItem('promptica-mobile-complete');
-    const savedProvider = localStorage.getItem('promptica-ai-provider');
-    const savedKey = sessionStorage.getItem('promptica-api-key');
+    const isComplete = localStorage.getItem('avalon-mobile-complete');
+    const savedProvider = localStorage.getItem('avalon-ai-provider');
+    const savedKey = sessionStorage.getItem('avalon-api-key');
 
     if (isComplete && savedProvider && savedKey) {
       setProvider(savedProvider as 'openai' | 'anthropic' | 'google');
@@ -1656,9 +1656,9 @@ function MobileApp() {
       const data = await response.json();
 
       if (data.success) {
-        localStorage.setItem('promptica-mobile-complete', 'true');
-        localStorage.setItem('promptica-ai-provider', provider);
-        sessionStorage.setItem('promptica-api-key', apiKey);
+        localStorage.setItem('avalon-mobile-complete', 'true');
+        localStorage.setItem('avalon-ai-provider', provider);
+        sessionStorage.setItem('avalon-api-key', apiKey);
         setStep('ready');
         setTimeout(() => setStep('dashboard'), 1500);
       } else {
@@ -1804,7 +1804,7 @@ function MobileApp() {
       <div className="min-h-screen bg-gradient-to-b from-violet-50 to-white flex flex-col">
         <div className="flex-1 flex flex-col items-center justify-center p-6">
           <Logo size={64} className="mb-4" />
-          <h1 className="text-2xl font-bold mb-2">Promptica</h1>
+          <h1 className="text-2xl font-bold mb-2">Avalon</h1>
           <p className="text-muted-foreground text-center mb-8">
             AI Prompt Editörü - Mobil
           </p>
@@ -1933,7 +1933,7 @@ function MobileApp() {
         <div className="bg-white border-b px-4 py-3 flex items-center justify-between sticky top-0 z-10">
           <div className="flex items-center gap-2">
             <Logo size={32} />
-            <span className="font-semibold">Promptica</span>
+            <span className="font-semibold">Avalon</span>
           </div>
           <div className="flex items-center gap-2">
             <label className="p-2 hover:bg-neutral-100 rounded-lg cursor-pointer">
@@ -1947,8 +1947,8 @@ function MobileApp() {
             </label>
             <button
               onClick={() => {
-                localStorage.removeItem('promptica-mobile-complete');
-                sessionStorage.removeItem('promptica-api-key');
+                localStorage.removeItem('avalon-mobile-complete');
+                sessionStorage.removeItem('avalon-api-key');
                 setStep('onboarding');
               }}
               className="p-2 hover:bg-neutral-100 rounded-lg"
