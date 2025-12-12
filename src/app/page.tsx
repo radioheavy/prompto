@@ -51,6 +51,82 @@ const GITHUB_RELEASES = 'https://github.com/radioheavy/prompto/releases/latest';
 const MAC_DOWNLOAD = 'https://github.com/radioheavy/prompto/releases/download/v0.1.0/PromptOz-0.1.0-mac.dmg';
 const WINDOWS_DOWNLOAD = 'https://github.com/radioheavy/prompto/releases/latest'; // Windows build coming soon
 
+// Screenshot data
+const screenshots = [
+  { src: '/a/1.png', rotate: -15, x: -320, label: 'Hoş Geldin' },
+  { src: '/a/2.png', rotate: -8, x: -160, label: 'Hazır!' },
+  { src: '/a/3.png', rotate: 0, x: 0, label: 'Editör' },
+  { src: '/a/5.png', rotate: 8, x: 160, label: 'AI Asistan' },
+  { src: '/a/7.png', rotate: 15, x: 320, label: 'AI Önerisi' },
+];
+
+function ScreenshotShowcase() {
+  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+
+  return (
+    <section className="container mx-auto px-4 py-16 overflow-hidden">
+      <h2 className="text-2xl font-bold text-center mb-2">Nasıl Görünüyor?</h2>
+      <p className="text-center text-muted-foreground mb-12">Uygulamadan ekran görüntüleri</p>
+
+      <div className="relative h-[450px] max-w-6xl mx-auto">
+        {/* Fixed hover trigger zones - these don't move */}
+        <div className="absolute inset-0 flex items-center justify-center">
+          {screenshots.map((img, i) => (
+            <div
+              key={`trigger-${i}`}
+              className="absolute h-[350px] w-[200px] cursor-pointer"
+              style={{
+                left: '50%',
+                transform: `translateX(calc(-50% + ${img.x}px))`,
+                zIndex: 30,
+              }}
+              onMouseEnter={() => setHoveredIndex(i)}
+              onMouseLeave={() => setHoveredIndex(null)}
+            />
+          ))}
+        </div>
+
+        {/* Visual cards - these animate */}
+        {screenshots.map((img, i) => {
+          const isHovered = hoveredIndex === i;
+          const isOtherHovered = hoveredIndex !== null && hoveredIndex !== i;
+
+          return (
+            <div
+              key={`card-${i}`}
+              className="absolute left-1/2 top-1/2 w-[500px] pointer-events-none"
+              style={{
+                transform: isHovered
+                  ? 'translate(-50%, -50%) rotate(0deg) scale(1.15)'
+                  : `translate(-50%, -50%) translateX(${img.x}px) rotate(${img.rotate}deg) scale(${isOtherHovered ? 0.9 : 1})`,
+                zIndex: isHovered ? 20 : (5 - Math.abs(i - 2)),
+                transition: 'all 0.5s cubic-bezier(0.4, 0, 0.2, 1)',
+                opacity: isOtherHovered ? 0.5 : 1,
+              }}
+            >
+              <div className="relative rounded-xl overflow-hidden shadow-2xl border border-neutral-200/50 bg-white">
+                <Image
+                  src={img.src}
+                  alt={img.label}
+                  width={500}
+                  height={312}
+                  className="w-full h-auto"
+                />
+                <div
+                  className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4 transition-opacity duration-300"
+                  style={{ opacity: isHovered ? 1 : 0 }}
+                >
+                  <span className="text-white font-medium">{img.label}</span>
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </section>
+  );
+}
+
 type View = 'dashboard' | 'editor';
 type AppMode = 'loading' | 'desktop' | 'web';
 
@@ -148,6 +224,9 @@ function LandingPage() {
           Versiyon 0.1.0
         </p>
       </section>
+
+      {/* Screenshot Showcase */}
+      <ScreenshotShowcase />
 
       {/* AI Options */}
       <section className="container mx-auto px-4 py-8">
