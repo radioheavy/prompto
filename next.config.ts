@@ -1,8 +1,12 @@
 import type { NextConfig } from "next";
 
+// TAURI_ENV varsa static export yap (desktop app için)
+// Yoksa SSR mode (web deployment için - API routes çalışsın)
+const isTauri = process.env.TAURI_ENV === "true";
+
 const nextConfig: NextConfig = {
-  output: "export",
-  distDir: "out",
+  // Sadece Tauri build'de static export
+  ...(isTauri ? { output: "export", distDir: "out" } : {}),
   images: {
     unoptimized: true,
     remotePatterns: [
@@ -14,7 +18,7 @@ const nextConfig: NextConfig = {
     ],
   },
   // Tauri için gerekli
-  assetPrefix: process.env.NODE_ENV === "production" ? "" : undefined,
+  assetPrefix: isTauri ? "" : undefined,
 };
 
 export default nextConfig;

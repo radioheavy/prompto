@@ -5,12 +5,12 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "export": "next build",
+    "build:static": "TAURI_ENV=true next build",
     "start": "next start",
     "lint": "eslint",
     "tauri": "tauri",
-    "tauri:dev": "tauri dev",
-    "tauri:build": "tauri build"
+    "tauri:dev": "TAURI_ENV=true tauri dev",
+    "tauri:build": "TAURI_ENV=true tauri build"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.71.2",
