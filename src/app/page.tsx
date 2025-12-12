@@ -38,7 +38,7 @@ function Logo({ size = 48, className = '' }: { size?: number; className?: string
   return (
     <Image
       src="/logo.png"
-      alt="Prompto"
+      alt="Prompt Oz"
       width={size}
       height={size}
       className={`rounded-xl ${className}`}
@@ -104,7 +104,7 @@ function LandingPage() {
       <section className="container mx-auto px-4 py-20 text-center">
         <div className="flex items-center justify-center gap-3 mb-6">
           <Logo size={56} />
-          <h1 className="text-5xl font-bold">Prompto</h1>
+          <h1 className="text-5xl font-bold">Prompt Oz</h1>
         </div>
 
         <p className="text-xl text-muted-foreground max-w-2xl mx-auto mb-4">
@@ -159,7 +159,7 @@ function LandingPage() {
             <div className="text-left">
               <h3 className="font-semibold text-lg mb-2">⚠️ Önce Claude CLI Kurulumu Gerekli</h3>
               <p className="text-muted-foreground mb-4">
-                Prompto, bilgisayarına kurulu Claude CLI üzerinden çalışır.
+                Prompt Oz, bilgisayarına kurulu Claude CLI üzerinden çalışır.
                 Claude Max veya Pro aboneliğin varsa <span className="font-medium text-foreground">ek ücret ödemeden</span> kullanabilirsin.
               </p>
               <div className="bg-muted/50 rounded-lg p-4">
@@ -238,7 +238,7 @@ function LandingPage() {
               <div className="flex items-start gap-6 relative">
                 <div className="w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-bold shrink-0 z-10">2</div>
                 <div className="pt-1">
-                  <h3 className="font-semibold mb-1">Prompto'yu İndir ve Kur</h3>
+                  <h3 className="font-semibold mb-1">Prompt Oz'u İndir ve Kur</h3>
                   <p className="text-muted-foreground text-sm">Yukarıdaki butona tıkla, DMG dosyasını aç, uygulamayı Applications'a sürükle.</p>
                 </div>
               </div>
@@ -257,7 +257,7 @@ function LandingPage() {
 
       {/* Benefits */}
       <section className="container mx-auto px-4 py-16">
-        <h2 className="text-3xl font-bold text-center mb-4">Neden Prompto?</h2>
+        <h2 className="text-3xl font-bold text-center mb-4">Neden Prompt Oz?</h2>
         <p className="text-center text-muted-foreground mb-12">Prompt yönetimini kolaylaştıran özellikler</p>
 
         <div className="max-w-2xl mx-auto grid sm:grid-cols-2 gap-4">
@@ -297,7 +297,7 @@ function LandingPage() {
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-muted-foreground">
           <div className="flex items-center gap-2">
             <Logo size={20} />
-            <span>Prompto</span>
+            <span>Prompt Oz</span>
           </div>
 
           <div className="flex items-center gap-4">
@@ -502,7 +502,7 @@ function OnboardingScreen({ onComplete }: { onComplete: () => void }) {
             <div className="mx-auto mb-6">
               <Logo size={64} />
             </div>
-            <h1 className="text-2xl font-bold mb-2">Prompto'ya Hoş Geldin!</h1>
+            <h1 className="text-2xl font-bold mb-2">Prompt Oz'a Hoş Geldin!</h1>
             <p className="text-muted-foreground mb-8">
               AI prompt'larını görselleştir ve düzenle
             </p>
@@ -513,7 +513,7 @@ function OnboardingScreen({ onComplete }: { onComplete: () => void }) {
                 <div>
                   <p className="font-medium text-sm mb-1">Claude CLI Gerekli</p>
                   <p className="text-xs text-muted-foreground">
-                    Prompto, AI özelliklerini kullanabilmek için bilgisayarında Claude CLI kurulu olmasını gerektirir.
+                    Prompt Oz, AI özelliklerini kullanabilmek için bilgisayarında Claude CLI kurulu olmasını gerektirir.
                   </p>
                 </div>
               </div>
@@ -583,7 +583,7 @@ function OnboardingScreen({ onComplete }: { onComplete: () => void }) {
             </div>
             <h2 className="text-xl font-bold mb-2">Her Şey Hazır!</h2>
             <p className="text-muted-foreground mb-6">
-              Claude CLI kurulu ve çalışıyor. Prompto'yu kullanmaya başlayabilirsin.
+              Claude CLI kurulu ve çalışıyor. Prompt Oz'u kullanmaya başlayabilirsin.
             </p>
 
             <Button className="w-full" size="lg" onClick={handleContinue}>
@@ -733,7 +733,7 @@ function EditorApp() {
       <header className="h-14 border-b bg-background/80 backdrop-blur-sm sticky top-0 z-10 flex items-center justify-between px-6">
         <div className="flex items-center gap-2">
           <Logo size={24} />
-          <h1 className="font-semibold">Prompto</h1>
+          <h1 className="font-semibold">Prompt Oz</h1>
         </div>
         <Button size="sm" onClick={() => setShowCreate(true)}>
           <Plus className="h-4 w-4 mr-2" />

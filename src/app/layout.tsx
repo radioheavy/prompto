@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Prompto - AI Prompt Editor",
+  title: "Prompt Oz - AI Prompt Editor",
   description: "AI prompt'larını görselleştir ve düzenle. Claude CLI ile entegre çalışır.",
   icons: {
     icon: [
