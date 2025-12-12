@@ -51,16 +51,13 @@ const GITHUB_RELEASES = 'https://github.com/radioheavy/prompto/releases/latest';
 const MAC_DOWNLOAD = 'https://pub-7c0a7463d6c24d1bafdec3a1e227ec2c.r2.dev/releases/PromptOz-0.1.0-mac.dmg';
 const WINDOWS_DOWNLOAD = 'https://github.com/radioheavy/prompto/releases/latest'; // Windows build coming soon
 
-// CDN URL for assets
-const CDN_URL = 'https://pub-7c0a7463d6c24d1bafdec3a1e227ec2c.r2.dev';
-
 // Screenshot data
 const screenshots = [
-  { src: `${CDN_URL}/screenshots/1.png`, rotate: -15, x: -320, label: 'Hoş Geldin' },
-  { src: `${CDN_URL}/screenshots/2.png`, rotate: -8, x: -160, label: 'Hazır!' },
-  { src: `${CDN_URL}/screenshots/3.png`, rotate: 0, x: 0, label: 'Editör' },
-  { src: `${CDN_URL}/screenshots/5.png`, rotate: 8, x: 160, label: 'AI Asistan' },
-  { src: `${CDN_URL}/screenshots/7.png`, rotate: 15, x: 320, label: 'AI Önerisi' },
+  { src: '/a/1.png', rotate: -15, x: -320, label: 'Hoş Geldin' },
+  { src: '/a/2.png', rotate: -8, x: -160, label: 'Hazır!' },
+  { src: '/a/3.png', rotate: 0, x: 0, label: 'Editör' },
+  { src: '/a/5.png', rotate: 8, x: 160, label: 'AI Asistan' },
+  { src: '/a/7.png', rotate: 15, x: 320, label: 'AI Önerisi' },
 ];
 
 function ScreenshotShowcase() {
