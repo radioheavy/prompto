@@ -90,7 +90,6 @@ Lütfen kullanıcının isteğine göre sadece seçili alanın değerini güncel
     const result = JSON.parse(jsonMatch[0]);
     return NextResponse.json(result);
   } catch (error) {
-    console.error('AI API Error:', error);
     return NextResponse.json({
       success: false,
       error: error instanceof Error ? error.message : 'Unknown error',

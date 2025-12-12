@@ -31,12 +31,9 @@ async function loadTauri(): Promise<boolean> {
       const { invoke } = await import('@tauri-apps/api/core');
       invokeFunction = invoke;
       isTauriEnv = true;
-      console.log('✅ Tauri environment detected');
-    } else {
-      console.log('ℹ️ Web environment (no Tauri)');
     }
-  } catch (e) {
-    console.log('ℹ️ Tauri not available:', e);
+  } catch {
+    // Tauri not available
   }
 
   tauriChecked = true;
@@ -57,9 +54,7 @@ export function useTauri() {
         try {
           const installed = await invokeFunction<boolean>('check_claude_installed');
           setIsClaudeInstalled(installed);
-          console.log('✅ Claude CLI installed:', installed);
-        } catch (error) {
-          console.error('Error checking claude:', error);
+        } catch {
           setIsClaudeInstalled(false);
         }
       }

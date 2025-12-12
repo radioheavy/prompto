@@ -38,12 +38,9 @@ export async function POST(request: NextRequest) {
     if (response.ok) {
       return NextResponse.json({ success: true });
     } else {
-      const errorText = await response.text();
-      console.error('API test error:', errorText);
       return NextResponse.json({ success: false, error: 'API key geçersiz veya yetkisiz' });
     }
-  } catch (error) {
-    console.error('Test key error:', error);
+  } catch {
     return NextResponse.json({ success: false, error: 'Bağlantı hatası' });
   }
 }

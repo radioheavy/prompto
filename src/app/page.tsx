@@ -741,8 +741,7 @@ function OnboardingScreen({ onComplete }: { onComplete: () => void }) {
         // Web modunda (normalde olmaz ama fallback)
         setTestResult('error');
       }
-    } catch (error) {
-      console.error('API test error:', error);
+    } catch {
       setTestResult('error');
     } finally {
       setIsTesting(false);
@@ -1716,8 +1715,7 @@ function MobileApp() {
         const newId = createPrompt(file.name.replace('.json', ''), content);
         setCurrentPrompt(newId);
         setStep('editor');
-      } catch (error) {
-        console.error('Invalid JSON:', error);
+      } catch {
         alert('Geçersiz JSON dosyası');
       }
     };
@@ -1775,8 +1773,8 @@ function MobileApp() {
           setAiInput('');
         }
       }
-    } catch (error) {
-      console.error('AI error:', error);
+    } catch {
+      // AI error handled silently
     } finally {
       setIsAiLoading(false);
     }

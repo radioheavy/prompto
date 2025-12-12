@@ -91,8 +91,7 @@ export function AIPanel() {
             }
           }
         }
-      } catch (error) {
-        console.error('Failed to fetch models:', error);
+      } catch {
         // Fallback to basic models on error
         const fallbackModels: Record<string, { id: string; name: string }[]> = {
           'openai': [{ id: 'gpt-4o', name: 'GPT-4o' }, { id: 'gpt-4o-mini', name: 'GPT-4o Mini' }],
