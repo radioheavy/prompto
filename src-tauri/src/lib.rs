@@ -16,11 +16,32 @@ pub struct AIUpdateRequest {
     pub full_prompt: Option<serde_json::Value>,
 }
 
+// Claude CLI yolunu bul
+fn find_claude_path() -> Option<String> {
+    let possible_paths = [
+        format!("{}/.local/bin/claude", std::env::var("HOME").unwrap_or_default()),
+        "/usr/local/bin/claude".to_string(),
+        "/opt/homebrew/bin/claude".to_string(),
+        format!("{}/.npm-global/bin/claude", std::env::var("HOME").unwrap_or_default()),
+    ];
+
+    for path in &possible_paths {
+        if std::path::Path::new(path).exists() {
+            return Some(path.clone());
+        }
+    }
+
+    // Fallback - belki PATH'te
+    Some("claude".to_string())
+}
+
 // Claude CLI'ı çağıran command
 #[tauri::command]
 async fn call_claude(prompt: String) -> Result<ClaudeResponse, String> {
+    let claude_path = find_claude_path().unwrap_or_else(|| "claude".to_string());
+
     // Claude CLI'ı çağır
-    let output = Command::new("claude")
+    let output = Command::new(&claude_path)
         .args(["--print", &prompt])
         .output();
 
@@ -109,23 +130,21 @@ Lütfen kullanıcının isteğine göre sadece seçili alanın değerini güncel
 // Claude CLI'ın kurulu olup olmadığını kontrol et
 #[tauri::command]
 async fn check_claude_installed() -> Result<bool, String> {
-    let output = Command::new("which")
-        .arg("claude")
-        .output();
+    // Bilinen yolları kontrol et
+    let possible_paths = [
+        format!("{}/.local/bin/claude", std::env::var("HOME").unwrap_or_default()),
+        "/usr/local/bin/claude".to_string(),
+        "/opt/homebrew/bin/claude".to_string(),
+        format!("{}/.npm-global/bin/claude", std::env::var("HOME").unwrap_or_default()),
+    ];
 
-    match output {
-        Ok(result) => Ok(result.status.success()),
-        Err(_) => {
-            // Windows için
-            let output = Command::new("where")
-                .arg("claude")
-                .output();
-            match output {
-                Ok(result) => Ok(result.status.success()),
-                Err(_) => Ok(false),
-            }
+    for path in &possible_paths {
+        if std::path::Path::new(path).exists() {
+            return Ok(true);
         }
     }
+
+    Ok(false)
 }
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
