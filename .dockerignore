@@ -1,0 +1,10 @@
+node_modules
+.next
+out
+.git
+.gitignore
+*.md
+.env*
+src-tauri/target
+src-tauri/Cargo.lock
+.DS_Store

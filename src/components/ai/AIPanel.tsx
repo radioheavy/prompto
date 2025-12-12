@@ -145,52 +145,50 @@ export function AIPanel() {
   ];
 
   return (
-    <div className="h-full flex flex-col border-l bg-background">
+    <div className="h-full flex flex-col bg-background">
       {/* Header */}
-      <div className="p-4 border-b">
+      <div className="h-12 px-3 border-b flex items-center justify-between shrink-0">
         <div className="flex items-center gap-2">
-          <Sparkles className="h-5 w-5 text-primary" />
-          <h2 className="font-semibold">AI Assistant</h2>
+          <Sparkles className="h-4 w-4 text-primary" />
+          <span className="font-medium text-sm">AI</span>
         </div>
 
         {/* Status Badge */}
-        <div className="mt-2 flex items-center gap-2">
-          {isChecking ? (
-            <Badge variant="secondary" className="text-xs">
-              <Loader2 className="h-3 w-3 mr-1 animate-spin" />
-              Checking...
+        {isChecking ? (
+          <Badge variant="secondary" className="text-xs h-6">
+            <Loader2 className="h-3 w-3 mr-1 animate-spin" />
+            ...
+          </Badge>
+        ) : isDesktopApp ? (
+          isClaudeInstalled ? (
+            <Badge className="text-xs h-6 bg-green-600 hover:bg-green-600">
+              <Check className="h-3 w-3 mr-1" />
+              Hazır
             </Badge>
-          ) : isDesktopApp ? (
-            isClaudeInstalled ? (
-              <Badge variant="default" className="text-xs bg-green-600">
-                <Terminal className="h-3 w-3 mr-1" />
-                Claude CLI Ready
-              </Badge>
-            ) : (
-              <Badge variant="destructive" className="text-xs">
-                <AlertCircle className="h-3 w-3 mr-1" />
-                Claude CLI Not Found
-              </Badge>
-            )
           ) : (
-            <Badge variant="secondary" className="text-xs">
-              <Sparkles className="h-3 w-3 mr-1" />
-              Web API Mode
+            <Badge variant="destructive" className="text-xs h-6">
+              <X className="h-3 w-3 mr-1" />
+              CLI Yok
             </Badge>
-          )}
-        </div>
-
-        {selectedPath && (
-          <div className="mt-2">
-            <Badge variant="outline" className="text-xs font-mono">
-              {pathToString(selectedPath)}
-            </Badge>
-          </div>
+          )
+        ) : (
+          <Badge variant="secondary" className="text-xs h-6">
+            API
+          </Badge>
         )}
       </div>
 
+      {/* Selected Path */}
+      {selectedPath && (
+        <div className="px-3 py-2 border-b bg-muted/50">
+          <code className="text-xs text-muted-foreground truncate block">
+            {pathToString(selectedPath)}
+          </code>
+        </div>
+      )}
+
       {/* Content */}
-      <ScrollArea className="flex-1 p-4">
+      <div className="flex-1 overflow-y-auto p-3">
         {/* Desktop app but no Claude CLI */}
         {isDesktopApp && !isClaudeInstalled && !isChecking && (
           <Card className="p-4 mb-4 border-yellow-500/50 bg-yellow-500/10">
@@ -211,33 +209,33 @@ export function AIPanel() {
 
         {/* Selected value preview */}
         {selectedPath && selectedValue !== undefined && (
-          <Card className="p-3 mb-4 bg-muted/50">
-            <p className="text-xs text-muted-foreground mb-1">Selected Value:</p>
-            <pre className="text-sm overflow-auto max-h-32">
-              {typeof selectedValue === 'object'
-                ? JSON.stringify(selectedValue, null, 2)
-                : String(selectedValue)}
-            </pre>
-          </Card>
+          <div className="mb-4">
+            <p className="text-xs font-medium text-muted-foreground mb-2">Seçili Değer</p>
+            <div className="bg-muted/50 rounded-lg p-3 max-h-40 overflow-auto">
+              <pre className="text-xs font-mono whitespace-pre-wrap break-all">
+                {typeof selectedValue === 'object'
+                  ? JSON.stringify(selectedValue, null, 2)
+                  : String(selectedValue)}
+              </pre>
+            </div>
+          </div>
         )}
 
         {/* Quick actions */}
         {selectedPath && (
           <div className="mb-4">
-            <p className="text-xs text-muted-foreground mb-2">Quick Actions:</p>
-            <div className="flex flex-wrap gap-2">
+            <p className="text-xs font-medium text-muted-foreground mb-2">Hızlı İşlemler</p>
+            <div className="flex flex-wrap gap-1.5">
               {quickActions.map((action) => (
-                <Button
+                <button
                   key={action.label}
-                  variant="outline"
-                  size="sm"
-                  className="text-xs"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs rounded-full border hover:bg-muted transition-colors disabled:opacity-50"
                   onClick={() => setInput(action.label)}
                   disabled={isDesktopApp && !isClaudeInstalled}
                 >
-                  <action.icon className="h-3 w-3 mr-1" />
+                  <action.icon className="h-3 w-3" />
                   {action.label}
-                </Button>
+                </button>
               ))}
             </div>
           </div>
@@ -285,23 +283,26 @@ export function AIPanel() {
 
         {/* No selection message */}
         {!selectedPath && (
-          <div className="text-center text-muted-foreground py-8">
-            <Sparkles className="h-8 w-8 mx-auto mb-2 opacity-50" />
-            <p className="text-sm">Select a field in the tree to use AI</p>
+          <div className="text-center text-muted-foreground py-12">
+            <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center mx-auto mb-3">
+              <Sparkles className="h-6 w-6 opacity-50" />
+            </div>
+            <p className="text-sm font-medium mb-1">Bir alan seç</p>
+            <p className="text-xs">Soldaki ağaçtan bir alana tıkla</p>
           </div>
         )}
-      </ScrollArea>
+      </div>
 
       {/* Input */}
-      <div className="p-4 border-t">
-        <div className="flex gap-2">
+      <div className="p-4 border-t bg-muted/20">
+        <div className="relative">
           <Textarea
             placeholder={
               !selectedPath
-                ? 'Select a field first...'
+                ? 'Önce bir alan seç...'
                 : isDesktopApp && !isClaudeInstalled
-                ? 'Install Claude CLI first...'
-                : 'Describe what you want to change...'
+                ? 'Önce Claude CLI kur...'
+                : 'Ne değiştirmek istiyorsun?'
             }
             value={input}
             onChange={(e) => setInput(e.target.value)}
@@ -312,10 +313,9 @@ export function AIPanel() {
               }
             }}
             disabled={!selectedPath || isAILoading || (isDesktopApp && !isClaudeInstalled)}
-            className="min-h-[60px] resize-none"
+            className="min-h-[80px] resize-none pr-12 text-sm"
           />
-          <Button
-            size="icon"
+          <button
             onClick={handleSubmit}
             disabled={
               !selectedPath ||
@@ -323,18 +323,19 @@ export function AIPanel() {
               isAILoading ||
               (isDesktopApp && !isClaudeInstalled)
             }
+            className="absolute right-2 bottom-2 h-8 w-8 rounded-md bg-primary text-primary-foreground flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed hover:bg-primary/90 transition-colors"
           >
             {isAILoading ? (
               <Loader2 className="h-4 w-4 animate-spin" />
             ) : (
               <Send className="h-4 w-4" />
             )}
-          </Button>
+          </button>
         </div>
         {isDesktopApp && isClaudeInstalled && (
           <p className="text-xs text-muted-foreground mt-2 flex items-center gap-1">
             <Terminal className="h-3 w-3" />
-            Using local Claude CLI (no API key needed)
+            Lokal Claude CLI kullanılıyor
           </p>
         )}
       </div>

@@ -16,6 +16,7 @@ import {
   CircleSlash,
   Trash2,
   Plus,
+  Pencil,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { NodeEditor } from './NodeEditor';
@@ -155,34 +156,63 @@ export function TreeNodeComponent({ node, depth }: TreeNodeProps) {
         <div className="flex-1 min-w-0">
           {isEditing ? (
             <NodeEditor node={node} onClose={() => setEditingPath(null)} />
-          ) : (
-            <span className={cn('text-sm truncate', typeColors[node.type])}>
-              {formatValue(node.value)}
+          ) : node.type === 'object' || node.type === 'array' ? (
+            <span className="text-xs text-muted-foreground">
+              {node.type === 'array'
+                ? `[${node.children?.length || 0} öğe]`
+                : `{${node.children?.length || 0} alan}`}
             </span>
+          ) : (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                setEditingPath(node.path);
+              }}
+              className={cn(
+                'text-sm truncate text-left hover:bg-muted px-1.5 py-0.5 rounded transition-colors max-w-full',
+                typeColors[node.type]
+              )}
+              title="Düzenlemek için tıkla"
+            >
+              {formatValue(node.value)}
+            </button>
           )}
         </div>
 
         {/* Actions */}
         {isHovered && !isEditing && (
-          <div className="flex items-center gap-1">
-            {isExpandable && (
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-6 w-6"
-                onClick={handleAddChild}
+          <div className="flex items-center gap-0.5 shrink-0">
+            {/* Edit button for primitive values */}
+            {node.type !== 'object' && node.type !== 'array' && (
+              <button
+                className="h-6 w-6 rounded flex items-center justify-center hover:bg-muted transition-colors"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setEditingPath(node.path);
+                }}
+                title="Düzenle"
               >
-                <Plus className="h-3 w-3" />
-              </Button>
+                <Pencil className="h-3 w-3 text-muted-foreground" />
+              </button>
             )}
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-6 w-6 text-destructive hover:text-destructive"
+            {/* Add child for objects/arrays */}
+            {isExpandable && (
+              <button
+                className="h-6 w-6 rounded flex items-center justify-center hover:bg-muted transition-colors"
+                onClick={handleAddChild}
+                title="Yeni ekle"
+              >
+                <Plus className="h-3 w-3 text-muted-foreground" />
+              </button>
+            )}
+            {/* Delete */}
+            <button
+              className="h-6 w-6 rounded flex items-center justify-center hover:bg-destructive/10 transition-colors"
               onClick={handleDelete}
+              title="Sil"
             >
-              <Trash2 className="h-3 w-3" />
-            </Button>
+              <Trash2 className="h-3 w-3 text-destructive" />
+            </button>
           </div>
         )}
       </div>
