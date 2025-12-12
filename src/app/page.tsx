@@ -1580,7 +1580,7 @@ function MobileApp() {
   const [apiKey, setApiKey] = useState('');
   const [isTestingKey, setIsTestingKey] = useState(false);
   const [keyError, setKeyError] = useState('');
-  const { prompts, addPrompt, setActivePromptId, activePromptId, getCurrentPrompt, updatePromptContent } = usePromptStore();
+  const { prompts, createPrompt, setCurrentPrompt, currentPromptId, getCurrentPrompt, updatePrompt } = usePromptStore();
   const [aiInput, setAiInput] = useState('');
   const [isAiLoading, setIsAiLoading] = useState(false);
 
@@ -1644,18 +1644,11 @@ function MobileApp() {
   };
 
   const createNewPrompt = () => {
-    const newPrompt: Prompt = {
-      id: crypto.randomUUID(),
-      name: 'Yeni Prompt',
-      content: {
-        prompt: '',
-        settings: {}
-      },
-      createdAt: new Date(),
-      updatedAt: new Date()
-    };
-    addPrompt(newPrompt);
-    setActivePromptId(newPrompt.id);
+    const newId = createPrompt('Yeni Prompt', {
+      prompt: '',
+      settings: {}
+    });
+    setCurrentPrompt(newId);
     setStep('editor');
   };
 
@@ -1680,8 +1673,8 @@ function MobileApp() {
       });
 
       const data = await response.json();
-      if (data.success && data.updatedPrompt) {
-        updatePromptContent(data.updatedPrompt);
+      if (data.success && data.updatedPrompt && currentPrompt) {
+        updatePrompt(currentPrompt.id, { content: data.updatedPrompt });
         setAiInput('');
       }
     } catch (error) {
@@ -1852,7 +1845,7 @@ function MobileApp() {
                 <button
                   key={prompt.id}
                   onClick={() => {
-                    setActivePromptId(prompt.id);
+                    setCurrentPrompt(prompt.id);
                     setStep('editor');
                   }}
                   className="w-full p-4 bg-white rounded-xl border text-left"
