@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Image from 'next/image';
 import { usePromptStore } from '@/lib/store/promptStore';
 import { Prompt } from '@/types/prompt';
 import { PromptTree } from '@/components/editor/PromptTree';
@@ -31,6 +32,19 @@ import {
   Terminal,
   Loader2,
 } from 'lucide-react';
+
+// Logo component
+function Logo({ size = 48, className = '' }: { size?: number; className?: string }) {
+  return (
+    <Image
+      src="/logo.png"
+      alt="Prompto"
+      width={size}
+      height={size}
+      className={`rounded-xl ${className}`}
+    />
+  );
+}
 
 // GitHub releases URL
 const GITHUB_RELEASES = 'https://github.com/radioheavy/prompto/releases/latest';
@@ -64,7 +78,7 @@ export default function App() {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="text-center">
-          <Sparkles className="h-12 w-12 text-primary mx-auto mb-4 animate-pulse" />
+          <Logo size={48} className="mx-auto mb-4 animate-pulse" />
           <Loader2 className="h-6 w-6 animate-spin mx-auto text-muted-foreground" />
         </div>
       </div>
@@ -89,7 +103,7 @@ function LandingPage() {
       {/* Hero Section */}
       <section className="container mx-auto px-4 py-20 text-center">
         <div className="flex items-center justify-center gap-3 mb-6">
-          <Sparkles className="h-12 w-12 text-primary" />
+          <Logo size={56} />
           <h1 className="text-5xl font-bold">Prompto</h1>
         </div>
 
@@ -282,7 +296,7 @@ function LandingPage() {
       <footer className="container mx-auto px-4 py-8 border-t">
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-muted-foreground">
           <div className="flex items-center gap-2">
-            <Sparkles className="h-4 w-4 text-primary" />
+            <Logo size={20} />
             <span>Prompto</span>
           </div>
 
@@ -485,8 +499,8 @@ function OnboardingScreen({ onComplete }: { onComplete: () => void }) {
         {/* Welcome Step */}
         {step === 'welcome' && (
           <div className="text-center">
-            <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-6">
-              <Sparkles className="h-8 w-8 text-primary" />
+            <div className="mx-auto mb-6">
+              <Logo size={64} />
             </div>
             <h1 className="text-2xl font-bold mb-2">Prompto'ya Hoş Geldin!</h1>
             <p className="text-muted-foreground mb-8">
@@ -573,7 +587,7 @@ function OnboardingScreen({ onComplete }: { onComplete: () => void }) {
             </p>
 
             <Button className="w-full" size="lg" onClick={handleContinue}>
-              <Sparkles className="h-4 w-4 mr-2" />
+              <Logo size={18} className="mr-2" />
               Başla
             </Button>
           </div>
@@ -718,7 +732,7 @@ function EditorApp() {
       {/* Header */}
       <header className="h-14 border-b bg-background/80 backdrop-blur-sm sticky top-0 z-10 flex items-center justify-between px-6">
         <div className="flex items-center gap-2">
-          <Sparkles className="h-5 w-5 text-primary" />
+          <Logo size={24} />
           <h1 className="font-semibold">Prompto</h1>
         </div>
         <Button size="sm" onClick={() => setShowCreate(true)}>
