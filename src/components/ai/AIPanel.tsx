@@ -6,8 +6,6 @@ import { getValueAtPath, pathToString } from '@/lib/json/updater';
 import { useTauri } from '@/hooks/useTauri';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
 import {
   Sparkles,
@@ -19,7 +17,10 @@ import {
   Wand2,
   Terminal,
   AlertCircle,
-  CheckCircle2,
+  Zap,
+  MessageSquare,
+  ChevronDown,
+  Bot,
 } from 'lucide-react';
 import { JsonValue } from '@/types/prompt';
 
@@ -44,6 +45,84 @@ export function AIPanel() {
 
   const [input, setInput] = useState('');
   const [suggestion, setSuggestion] = useState<AISuggestion | null>(null);
+  const [selectedModel, setSelectedModel] = useState<string>('');
+  const [models, setModels] = useState<{ id: string; name: string }[]>([]);
+  const [isLoadingModels, setIsLoadingModels] = useState(false);
+
+  // Get current AI provider
+  const currentProvider = typeof window !== 'undefined'
+    ? localStorage.getItem('prompto-ai-provider') || 'claude-cli'
+    : 'claude-cli';
+
+  // Fetch models from API
+  useEffect(() => {
+    const fetchModels = async () => {
+      if (currentProvider === 'claude-cli') {
+        setModels([{ id: 'default', name: 'Varsayılan' }]);
+        setSelectedModel('default');
+        return;
+      }
+
+      const apiKey = sessionStorage.getItem('prompto-api-key');
+      if (!apiKey) {
+        // Fallback models if no API key
+        setModels([{ id: 'default', name: 'Model seçin...' }]);
+        return;
+      }
+
+      setIsLoadingModels(true);
+      try {
+        if (typeof window !== 'undefined' && '__TAURI_INTERNALS__' in window) {
+          const { invoke } = await import('@tauri-apps/api/core');
+          const fetchedModels = await invoke<{ id: string; name: string }[]>('get_models', {
+            provider: currentProvider,
+            apiKey: apiKey
+          });
+
+          if (fetchedModels && fetchedModels.length > 0) {
+            setModels(fetchedModels);
+            // Restore saved model or use first
+            const savedModel = sessionStorage.getItem('prompto-ai-model');
+            if (savedModel && fetchedModels.some(m => m.id === savedModel)) {
+              setSelectedModel(savedModel);
+            } else {
+              setSelectedModel(fetchedModels[0].id);
+              sessionStorage.setItem('prompto-ai-model', fetchedModels[0].id);
+            }
+          }
+        }
+      } catch (error) {
+        console.error('Failed to fetch models:', error);
+        // Fallback to basic models on error
+        const fallbackModels: Record<string, { id: string; name: string }[]> = {
+          'openai': [{ id: 'gpt-4o', name: 'GPT-4o' }, { id: 'gpt-4o-mini', name: 'GPT-4o Mini' }],
+          'anthropic': [{ id: 'claude-sonnet-4-20250514', name: 'Claude Sonnet 4' }],
+          'google': [{ id: 'gemini-1.5-pro', name: 'Gemini 1.5 Pro' }],
+        };
+        setModels(fallbackModels[currentProvider] || []);
+        if (fallbackModels[currentProvider]?.[0]) {
+          setSelectedModel(fallbackModels[currentProvider][0].id);
+        }
+      } finally {
+        setIsLoadingModels(false);
+      }
+    };
+
+    fetchModels();
+  }, [currentProvider]);
+
+  // Save model selection
+  const handleModelChange = (modelId: string) => {
+    setSelectedModel(modelId);
+    sessionStorage.setItem('prompto-ai-model', modelId);
+  };
+
+  const providerNames: Record<string, string> = {
+    'claude-cli': 'Claude CLI',
+    'openai': 'OpenAI',
+    'anthropic': 'Anthropic',
+    'google': 'Gemini'
+  };
 
   const prompt = getCurrentPrompt();
   const selectedValue = prompt && selectedPath
@@ -139,80 +218,90 @@ export function AIPanel() {
   };
 
   const quickActions = [
-    { label: 'Daha detaylı yap', icon: Wand2 },
-    { label: 'Basitleştir', icon: Lightbulb },
-    { label: 'Türkçeye çevir', icon: Sparkles },
+    { label: 'Daha detaylı yap', icon: Wand2, color: 'violet' },
+    { label: 'Basitleştir', icon: Lightbulb, color: 'amber' },
+    { label: 'İngilizceye çevir', icon: Sparkles, color: 'sky' },
   ];
 
   return (
-    <div className="h-full flex flex-col bg-background">
+    <div className="h-full flex flex-col bg-white">
       {/* Header */}
-      <div className="h-12 px-3 border-b flex items-center justify-between shrink-0">
+      <div className="h-12 px-4 border-b border-neutral-100 flex items-center justify-between shrink-0">
         <div className="flex items-center gap-2">
-          <Sparkles className="h-4 w-4 text-primary" />
-          <span className="font-medium text-sm">AI</span>
+          <div className="w-7 h-7 rounded-lg bg-violet-100 flex items-center justify-center">
+            <Sparkles className="h-4 w-4 text-violet-600" />
+          </div>
+          <span className="font-semibold text-neutral-800 text-sm">AI Asistan</span>
         </div>
 
-        {/* Status Badge */}
-        {isChecking ? (
-          <Badge variant="secondary" className="text-xs h-6">
-            <Loader2 className="h-3 w-3 mr-1 animate-spin" />
-            ...
-          </Badge>
-        ) : isDesktopApp ? (
-          isClaudeInstalled ? (
-            <Badge className="text-xs h-6 bg-green-600 hover:bg-green-600">
-              <Check className="h-3 w-3 mr-1" />
-              Hazır
-            </Badge>
-          ) : (
-            <Badge variant="destructive" className="text-xs h-6">
-              <X className="h-3 w-3 mr-1" />
-              CLI Yok
-            </Badge>
-          )
-        ) : (
-          <Badge variant="secondary" className="text-xs h-6">
-            API
-          </Badge>
+        {/* Model Selector */}
+        {currentProvider !== 'claude-cli' && (
+          <div className="relative">
+            {isLoadingModels ? (
+              <div className="flex items-center gap-1.5 bg-neutral-100 text-neutral-500 text-xs font-medium px-3 py-1.5 rounded-lg">
+                <Loader2 className="h-3 w-3 animate-spin" />
+                Yükleniyor...
+              </div>
+            ) : (
+              <>
+                <select
+                  value={selectedModel}
+                  onChange={(e) => handleModelChange(e.target.value)}
+                  className="appearance-none bg-neutral-100 hover:bg-neutral-200 text-neutral-700 text-xs font-medium pl-3 pr-7 py-1.5 rounded-lg cursor-pointer transition-colors focus:outline-none focus:ring-2 focus:ring-violet-500/20"
+                >
+                  {models.map((model) => (
+                    <option key={model.id} value={model.id}>
+                      {model.name}
+                    </option>
+                  ))}
+                </select>
+                <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-neutral-400 pointer-events-none" />
+              </>
+            )}
+          </div>
         )}
       </div>
 
       {/* Selected Path */}
       {selectedPath && (
-        <div className="px-3 py-2 border-b bg-muted/50">
-          <code className="text-xs text-muted-foreground truncate block">
-            {pathToString(selectedPath)}
-          </code>
+        <div className="px-4 py-2.5 border-b border-neutral-100 bg-violet-50/50">
+          <div className="flex items-center gap-2">
+            <Zap className="h-3.5 w-3.5 text-violet-500" />
+            <code className="text-xs text-violet-600 font-medium truncate">
+              {pathToString(selectedPath)}
+            </code>
+          </div>
         </div>
       )}
 
       {/* Content */}
-      <div className="flex-1 overflow-y-auto p-3">
+      <div className="flex-1 overflow-y-auto p-4">
         {/* Desktop app but no Claude CLI */}
         {isDesktopApp && !isClaudeInstalled && !isChecking && (
-          <Card className="p-4 mb-4 border-yellow-500/50 bg-yellow-500/10">
+          <div className="p-4 mb-4 rounded-2xl bg-amber-50 border border-amber-100">
             <div className="flex items-start gap-3">
-              <AlertCircle className="h-5 w-5 text-yellow-500 mt-0.5" />
+              <div className="w-8 h-8 rounded-xl bg-amber-100 flex items-center justify-center shrink-0">
+                <AlertCircle className="h-4 w-4 text-amber-600" />
+              </div>
               <div>
-                <p className="font-medium text-sm">Claude CLI not found</p>
-                <p className="text-xs text-muted-foreground mt-1">
-                  Install Claude CLI to use AI features:
+                <p className="font-medium text-sm text-neutral-800">Claude CLI bulunamadı</p>
+                <p className="text-xs text-neutral-500 mt-1">
+                  AI özelliklerini kullanmak için:
                 </p>
-                <code className="text-xs bg-muted px-2 py-1 rounded mt-2 block">
+                <code className="text-xs bg-white px-2.5 py-1.5 rounded-lg mt-2 block border border-amber-200 text-amber-700">
                   npm install -g @anthropic-ai/claude-code
                 </code>
               </div>
             </div>
-          </Card>
+          </div>
         )}
 
         {/* Selected value preview */}
         {selectedPath && selectedValue !== undefined && (
           <div className="mb-4">
-            <p className="text-xs font-medium text-muted-foreground mb-2">Seçili Değer</p>
-            <div className="bg-muted/50 rounded-lg p-3 max-h-40 overflow-auto">
-              <pre className="text-xs font-mono whitespace-pre-wrap break-all">
+            <p className="text-xs font-medium text-neutral-500 mb-2 uppercase tracking-wide">Seçili Değer</p>
+            <div className="bg-neutral-50 rounded-xl p-3 max-h-32 overflow-auto border border-neutral-100">
+              <pre className="text-xs font-mono text-neutral-600 whitespace-pre-wrap break-all">
                 {typeof selectedValue === 'object'
                   ? JSON.stringify(selectedValue, null, 2)
                   : String(selectedValue)}
@@ -224,16 +313,22 @@ export function AIPanel() {
         {/* Quick actions */}
         {selectedPath && (
           <div className="mb-4">
-            <p className="text-xs font-medium text-muted-foreground mb-2">Hızlı İşlemler</p>
-            <div className="flex flex-wrap gap-1.5">
+            <p className="text-xs font-medium text-neutral-500 mb-2 uppercase tracking-wide">Hızlı İşlemler</p>
+            <div className="flex flex-wrap gap-2">
               {quickActions.map((action) => (
                 <button
                   key={action.label}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs rounded-full border hover:bg-muted transition-colors disabled:opacity-50"
+                  className={`inline-flex items-center gap-1.5 px-3 py-2 text-xs rounded-xl border transition-all font-medium ${
+                    action.color === 'violet'
+                      ? 'border-violet-200 bg-violet-50 text-violet-600 hover:bg-violet-100'
+                      : action.color === 'amber'
+                      ? 'border-amber-200 bg-amber-50 text-amber-600 hover:bg-amber-100'
+                      : 'border-sky-200 bg-sky-50 text-sky-600 hover:bg-sky-100'
+                  } disabled:opacity-50`}
                   onClick={() => setInput(action.label)}
                   disabled={isDesktopApp && !isClaudeInstalled}
                 >
-                  <action.icon className="h-3 w-3" />
+                  <action.icon className="h-3.5 w-3.5" />
                   {action.label}
                 </button>
               ))}
@@ -243,58 +338,71 @@ export function AIPanel() {
 
         {/* AI Suggestion */}
         {suggestion && (
-          <Card className="p-4 mb-4 border-primary/50">
-            <div className="flex items-center gap-2 mb-2">
-              <CheckCircle2 className="h-4 w-4 text-green-500" />
-              <span className="font-medium text-sm">AI Suggestion</span>
+          <div className="p-4 mb-4 rounded-2xl bg-emerald-50 border border-emerald-100">
+            <div className="flex items-center gap-2 mb-3">
+              <div className="w-6 h-6 rounded-lg bg-emerald-100 flex items-center justify-center">
+                <Check className="h-4 w-4 text-emerald-600" />
+              </div>
+              <span className="font-semibold text-sm text-neutral-800">AI Önerisi</span>
             </div>
-            <p className="text-sm text-muted-foreground mb-3">
+            <p className="text-sm text-neutral-600 mb-3">
               {suggestion.explanation}
             </p>
-            <div className="bg-muted rounded-md p-2 mb-3">
-              <pre className="text-xs overflow-auto max-h-40">
+            <div className="bg-white rounded-xl p-3 mb-3 border border-emerald-100">
+              <pre className="text-xs font-mono overflow-auto max-h-32 text-neutral-700">
                 {typeof suggestion.suggestedValue === 'object'
                   ? JSON.stringify(suggestion.suggestedValue, null, 2)
                   : String(suggestion.suggestedValue)}
               </pre>
             </div>
             <div className="flex gap-2">
-              <Button size="sm" onClick={handleApplySuggestion}>
+              <Button
+                size="sm"
+                onClick={handleApplySuggestion}
+                className="rounded-xl bg-emerald-600 hover:bg-emerald-700"
+              >
                 <Check className="h-4 w-4 mr-1" />
-                Apply
+                Uygula
               </Button>
-              <Button size="sm" variant="outline" onClick={handleRejectSuggestion}>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={handleRejectSuggestion}
+                className="rounded-xl"
+              >
                 <X className="h-4 w-4 mr-1" />
-                Reject
+                İptal
               </Button>
             </div>
-          </Card>
+          </div>
         )}
 
         {/* Error */}
         {aiError && (
-          <Card className="p-3 mb-4 border-destructive/50 bg-destructive/10">
-            <div className="flex items-start gap-2">
-              <AlertCircle className="h-4 w-4 text-destructive mt-0.5" />
-              <p className="text-sm text-destructive">{aiError}</p>
+          <div className="p-4 mb-4 rounded-2xl bg-red-50 border border-red-100">
+            <div className="flex items-start gap-3">
+              <div className="w-6 h-6 rounded-lg bg-red-100 flex items-center justify-center shrink-0">
+                <AlertCircle className="h-4 w-4 text-red-600" />
+              </div>
+              <p className="text-sm text-red-600">{aiError}</p>
             </div>
-          </Card>
+          </div>
         )}
 
         {/* No selection message */}
         {!selectedPath && (
-          <div className="text-center text-muted-foreground py-12">
-            <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center mx-auto mb-3">
-              <Sparkles className="h-6 w-6 opacity-50" />
+          <div className="text-center py-12">
+            <div className="w-16 h-16 rounded-2xl bg-neutral-100 flex items-center justify-center mx-auto mb-4">
+              <MessageSquare className="h-8 w-8 text-neutral-300" />
             </div>
-            <p className="text-sm font-medium mb-1">Bir alan seç</p>
-            <p className="text-xs">Soldaki ağaçtan bir alana tıkla</p>
+            <p className="font-medium text-neutral-800 mb-1">Bir alan seç</p>
+            <p className="text-sm text-neutral-500">Soldaki ağaçtan bir alana tıkla</p>
           </div>
         )}
       </div>
 
       {/* Input */}
-      <div className="p-4 border-t bg-muted/20">
+      <div className="p-4 border-t border-neutral-100 bg-neutral-50/50">
         <div className="relative">
           <Textarea
             placeholder={
@@ -313,7 +421,7 @@ export function AIPanel() {
               }
             }}
             disabled={!selectedPath || isAILoading || (isDesktopApp && !isClaudeInstalled)}
-            className="min-h-[80px] resize-none pr-12 text-sm"
+            className="min-h-[80px] resize-none pr-14 text-sm rounded-xl border-neutral-200 bg-white focus:border-violet-300 focus:ring-violet-100"
           />
           <button
             onClick={handleSubmit}
@@ -323,7 +431,7 @@ export function AIPanel() {
               isAILoading ||
               (isDesktopApp && !isClaudeInstalled)
             }
-            className="absolute right-2 bottom-2 h-8 w-8 rounded-md bg-primary text-primary-foreground flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed hover:bg-primary/90 transition-colors"
+            className="absolute right-3 bottom-3 h-9 w-9 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 text-white flex items-center justify-center disabled:opacity-40 disabled:cursor-not-allowed hover:from-violet-500 hover:to-indigo-500 transition-all shadow-lg shadow-violet-500/25"
           >
             {isAILoading ? (
               <Loader2 className="h-4 w-4 animate-spin" />
@@ -332,12 +440,19 @@ export function AIPanel() {
             )}
           </button>
         </div>
-        {isDesktopApp && isClaudeInstalled && (
-          <p className="text-xs text-muted-foreground mt-2 flex items-center gap-1">
-            <Terminal className="h-3 w-3" />
-            Lokal Claude CLI kullanılıyor
-          </p>
-        )}
+        <p className="text-xs text-neutral-400 mt-2 flex items-center gap-1.5">
+          {currentProvider === 'claude-cli' ? (
+            <>
+              <Terminal className="h-3 w-3" />
+              Lokal Claude CLI
+            </>
+          ) : (
+            <>
+              <Bot className="h-3 w-3" />
+              {models.find(m => m.id === selectedModel)?.name || providerNames[currentProvider]}
+            </>
+          )}
+        </p>
       </div>
     </div>
   );

@@ -386,9 +386,10 @@ function ResizeHandle({ onResize }: { onResize: (delta: number) => void }) {
 // EDITOR VIEW COMPONENT (Resizable)
 // ============================================
 function EditorView({ prompt, onBack }: { prompt: Prompt; onBack: () => void }) {
-  const [leftWidth, setLeftWidth] = useState(320);
-  const [rightWidth, setRightWidth] = useState(340);
+  const [leftWidth, setLeftWidth] = useState(340);
+  const [rightWidth, setRightWidth] = useState(360);
   const [copied, setCopied] = useState(false);
+  const [activeTab, setActiveTab] = useState<'tree' | 'json'>('tree');
 
   const handleCopy = () => {
     navigator.clipboard.writeText(JSON.stringify(prompt.content, null, 2));
@@ -397,32 +398,102 @@ function EditorView({ prompt, onBack }: { prompt: Prompt; onBack: () => void }) 
   };
 
   const handleLeftResize = (delta: number) => {
-    setLeftWidth(prev => Math.max(200, Math.min(500, prev + delta)));
+    setLeftWidth(prev => Math.max(280, Math.min(500, prev + delta)));
   };
 
   const handleRightResize = (delta: number) => {
-    setRightWidth(prev => Math.max(280, Math.min(500, prev - delta)));
+    setRightWidth(prev => Math.max(300, Math.min(500, prev - delta)));
+  };
+
+  // Get current AI provider
+  const currentProvider = localStorage.getItem('prompto-ai-provider') || 'claude-cli';
+  const providerNames: Record<string, string> = {
+    'claude-cli': 'Claude CLI',
+    'openai': 'OpenAI',
+    'anthropic': 'Anthropic',
+    'google': 'Gemini'
   };
 
   return (
-    <div className="h-screen flex flex-col bg-background">
+    <div className="h-screen flex flex-col bg-[#FAFAFA]">
       {/* Header */}
-      <header className="h-12 border-b flex items-center px-3 gap-3">
-        <button
-          onClick={onBack}
-          className="h-8 w-8 rounded-lg flex items-center justify-center hover:bg-muted transition-colors"
-        >
-          <ChevronLeft className="h-5 w-5" />
-        </button>
-        <div className="flex items-center gap-2 flex-1">
-          <FileJson className="h-4 w-4 text-primary" />
-          <h1 className="font-medium text-sm">{prompt.name}</h1>
+      <header className="h-14 bg-white border-b border-neutral-200/80 flex items-center px-4 gap-4 shrink-0">
+        {/* Left - Back & Title */}
+        <div className="flex items-center gap-3 flex-1">
+          <button
+            onClick={onBack}
+            className="h-9 w-9 rounded-xl bg-neutral-100 hover:bg-neutral-200 flex items-center justify-center transition-colors"
+          >
+            <ChevronLeft className="h-5 w-5 text-neutral-600" />
+          </button>
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-violet-500 to-indigo-500 flex items-center justify-center">
+              <FileJson className="h-4 w-4 text-white" />
+            </div>
+            <div>
+              <h1 className="font-semibold text-neutral-800 text-sm">{prompt.name}</h1>
+              <p className="text-[10px] text-neutral-400">{Object.keys(prompt.content).length} alan</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Center - Tabs */}
+        <div className="flex items-center bg-neutral-100 rounded-xl p-1">
+          <button
+            onClick={() => setActiveTab('tree')}
+            className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-all ${
+              activeTab === 'tree'
+                ? 'bg-white text-neutral-800 shadow-sm'
+                : 'text-neutral-500 hover:text-neutral-700'
+            }`}
+          >
+            Ağaç
+          </button>
+          <button
+            onClick={() => setActiveTab('json')}
+            className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-all ${
+              activeTab === 'json'
+                ? 'bg-white text-neutral-800 shadow-sm'
+                : 'text-neutral-500 hover:text-neutral-700'
+            }`}
+          >
+            JSON
+          </button>
+        </div>
+
+        {/* Right - Actions */}
+        <div className="flex items-center gap-2 flex-1 justify-end">
+          <button
+            onClick={handleCopy}
+            className={`h-9 px-4 rounded-xl text-sm font-medium flex items-center gap-2 transition-all ${
+              copied
+                ? 'bg-emerald-100 text-emerald-700'
+                : 'bg-neutral-100 hover:bg-neutral-200 text-neutral-600'
+            }`}
+          >
+            {copied ? (
+              <>
+                <Check className="h-4 w-4" />
+                Kopyalandı
+              </>
+            ) : (
+              <>
+                <Copy className="h-4 w-4" />
+                Kopyala
+              </>
+            )}
+          </button>
+          <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-50">
+            <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+            <span className="text-xs font-medium text-emerald-700">{providerNames[currentProvider]}</span>
+          </div>
         </div>
       </header>
 
       <div className="flex-1 flex overflow-hidden">
         {/* Sol - Tree View */}
-        <div style={{ width: leftWidth }} className="flex flex-col overflow-hidden shrink-0">
+        <div style={{ width: leftWidth }} className="flex flex-col overflow-hidden shrink-0 bg-white border-r border-neutral-200/80">
+          {/* Tree Content */}
           <div className="flex-1 overflow-y-auto">
             <PromptTree />
           </div>
@@ -431,45 +502,46 @@ function EditorView({ prompt, onBack }: { prompt: Prompt; onBack: () => void }) 
         {/* Sol Resize Handle */}
         <ResizeHandle onResize={handleLeftResize} />
 
-        {/* Orta - JSON Preview */}
+        {/* Orta - Preview */}
         <div className="flex-1 flex flex-col min-w-[200px] overflow-hidden">
-          {/* Header with Copy */}
-          <div className="h-12 px-3 border-b flex items-center justify-between shrink-0">
-            <span className="text-xs text-muted-foreground">JSON</span>
-            <button
-              onClick={handleCopy}
-              className={`h-8 px-3 text-xs rounded border transition-all flex items-center gap-1.5 ${
-                copied
-                  ? 'bg-green-500/10 border-green-500/30 text-green-600'
-                  : 'hover:bg-muted'
-              }`}
-            >
-              {copied ? (
-                <>
-                  <Check className="h-3.5 w-3.5" />
-                  Kopyalandı!
-                </>
-              ) : (
-                <>
-                  <Copy className="h-3.5 w-3.5" />
-                  Kopyala
-                </>
-              )}
-            </button>
-          </div>
-          {/* JSON Content */}
-          <div className="flex-1 p-4 overflow-y-auto bg-muted/30">
-            <pre className="text-xs font-mono whitespace-pre-wrap text-muted-foreground select-all cursor-text">
-              {JSON.stringify(prompt.content, null, 2)}
-            </pre>
-          </div>
+          {activeTab === 'tree' ? (
+            /* Visual Preview */
+            <div className="flex-1 p-6 overflow-y-auto">
+              <div className="max-w-2xl mx-auto">
+                <div className="bg-white rounded-2xl border border-neutral-200/80 shadow-sm overflow-hidden">
+                  {/* Preview Header */}
+                  <div className="px-5 py-4 border-b border-neutral-100 bg-neutral-50/50">
+                    <div className="flex items-center gap-2">
+                      <div className="w-3 h-3 rounded-full bg-red-400" />
+                      <div className="w-3 h-3 rounded-full bg-amber-400" />
+                      <div className="w-3 h-3 rounded-full bg-emerald-400" />
+                      <span className="ml-3 text-xs text-neutral-400 font-mono">prompt.json</span>
+                    </div>
+                  </div>
+                  {/* JSON Content */}
+                  <div className="p-5">
+                    <pre className="text-sm font-mono text-neutral-600 whitespace-pre-wrap leading-relaxed">
+                      {JSON.stringify(prompt.content, null, 2)}
+                    </pre>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ) : (
+            /* Raw JSON */
+            <div className="flex-1 p-6 overflow-y-auto bg-neutral-900">
+              <pre className="text-sm font-mono text-emerald-400 whitespace-pre-wrap leading-relaxed">
+                {JSON.stringify(prompt.content, null, 2)}
+              </pre>
+            </div>
+          )}
         </div>
 
         {/* Sağ Resize Handle */}
         <ResizeHandle onResize={handleRightResize} />
 
         {/* Sağ - AI Panel */}
-        <div style={{ width: rightWidth }} className="flex flex-col overflow-hidden shrink-0">
+        <div style={{ width: rightWidth }} className="flex flex-col overflow-hidden shrink-0 bg-white border-l border-neutral-200/80">
           <AIPanel />
         </div>
       </div>
@@ -480,127 +552,314 @@ function EditorView({ prompt, onBack }: { prompt: Prompt; onBack: () => void }) 
 // ============================================
 // ONBOARDING SCREEN (İlk açılış)
 // ============================================
-type OnboardingStep = 'welcome' | 'checking' | 'not-found' | 'ready';
+type OnboardingStep = 'welcome' | 'cli-check' | 'cli-setup' | 'api-setup' | 'ready';
+type AIProvider = 'claude-cli' | 'openai' | 'anthropic' | 'google';
 
 function OnboardingScreen({ onComplete }: { onComplete: () => void }) {
   const [step, setStep] = useState<OnboardingStep>('welcome');
+  const [selectedProvider, setSelectedProvider] = useState<AIProvider>('claude-cli');
+  const [apiKey, setApiKey] = useState('');
   const [isChecking, setIsChecking] = useState(false);
+  const [isTesting, setIsTesting] = useState(false);
+  const [testResult, setTestResult] = useState<'success' | 'error' | null>(null);
 
   const checkClaudeCLI = async () => {
     setIsChecking(true);
-    setStep('checking');
+    setStep('cli-check');
 
     try {
-      // Tauri üzerinden Claude CLI kontrolü
       if (typeof window !== 'undefined' && '__TAURI_INTERNALS__' in window) {
         const { invoke } = await import('@tauri-apps/api/core');
         const isInstalled = await invoke('check_claude_installed');
 
         if (isInstalled) {
+          setSelectedProvider('claude-cli');
           setStep('ready');
         } else {
-          setStep('not-found');
+          setStep('cli-setup');
         }
       } else {
-        // Fallback - web'de her zaman not-found
-        setStep('not-found');
+        setStep('cli-setup');
       }
     } catch {
-      setStep('not-found');
+      setStep('cli-setup');
     } finally {
       setIsChecking(false);
     }
   };
 
-  const handleSkip = () => {
+  const handleComplete = (provider: AIProvider, key?: string) => {
+    // AI ayarlarını localStorage'a kaydet (sadece provider, key session'da)
+    localStorage.setItem('prompto-ai-provider', provider);
+    if (key) {
+      // Session storage - tarayıcı kapanınca silinir
+      sessionStorage.setItem('prompto-api-key', key);
+    }
     localStorage.setItem('prompto-onboarding-complete', 'true');
     onComplete();
   };
 
-  const handleContinue = () => {
-    localStorage.setItem('prompto-onboarding-complete', 'true');
-    onComplete();
+  const testApiKey = async () => {
+    if (!apiKey.trim()) return;
+
+    setIsTesting(true);
+    setTestResult(null);
+
+    try {
+      // Tauri backend üzerinden API test et (CORS sorunu yok)
+      if (typeof window !== 'undefined' && '__TAURI_INTERNALS__' in window) {
+        const { invoke } = await import('@tauri-apps/api/core');
+        const isValid = await invoke<boolean>('test_api_key', {
+          provider: selectedProvider,
+          apiKey: apiKey
+        });
+        setTestResult(isValid ? 'success' : 'error');
+      } else {
+        // Web modunda (normalde olmaz ama fallback)
+        setTestResult('error');
+      }
+    } catch (error) {
+      console.error('API test error:', error);
+      setTestResult('error');
+    } finally {
+      setIsTesting(false);
+    }
+  };
+
+  const providerInfo: Record<AIProvider, { name: string; placeholder: string; link: string }> = {
+    'claude-cli': { name: 'Claude CLI', placeholder: '', link: '' },
+    'openai': {
+      name: 'OpenAI',
+      placeholder: 'sk-...',
+      link: 'https://platform.openai.com/api-keys'
+    },
+    'anthropic': {
+      name: 'Anthropic',
+      placeholder: 'sk-ant-...',
+      link: 'https://console.anthropic.com/settings/keys'
+    },
+    'google': {
+      name: 'Google Gemini',
+      placeholder: 'AI...',
+      link: 'https://aistudio.google.com/app/apikey'
+    },
   };
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-muted flex items-center justify-center p-4">
-      <Card className="max-w-lg w-full p-8">
-        {/* Welcome Step */}
+      <Card className="max-w-xl w-full p-8">
+        {/* Welcome Step - İki Seçenek */}
         {step === 'welcome' && (
-          <div className="text-center">
-            <div className="mx-auto mb-6">
-              <Logo size={64} />
-            </div>
-            <h1 className="text-2xl font-bold mb-2">Prompt Oz'a Hoş Geldin!</h1>
-            <p className="text-muted-foreground mb-8">
-              AI prompt'larını görselleştir ve düzenle
-            </p>
-
-            <div className="bg-amber-500/10 border border-amber-500/30 rounded-lg p-4 mb-6 text-left">
-              <div className="flex items-start gap-3">
-                <Terminal className="h-5 w-5 text-amber-600 mt-0.5 shrink-0" />
-                <div>
-                  <p className="font-medium text-sm mb-1">Claude CLI Gerekli</p>
-                  <p className="text-xs text-muted-foreground">
-                    Prompt Oz, AI özelliklerini kullanabilmek için bilgisayarında Claude CLI kurulu olmasını gerektirir.
-                  </p>
-                </div>
+          <div>
+            <div className="text-center mb-8">
+              <div className="mx-auto mb-4">
+                <Logo size={56} />
               </div>
+              <h1 className="text-2xl font-bold mb-2">Prompt Oz'a Hoş Geldin!</h1>
+              <p className="text-muted-foreground">
+                AI bağlantı yöntemini seç
+              </p>
             </div>
 
-            <div className="space-y-3">
-              <Button className="w-full" size="lg" onClick={checkClaudeCLI}>
-                <Terminal className="h-4 w-4 mr-2" />
-                Claude CLI'ı Kontrol Et
-              </Button>
-              <Button variant="ghost" className="w-full" onClick={handleSkip}>
-                Zaten kurdum, devam et
-              </Button>
+            <div className="grid gap-4">
+              {/* Claude CLI Option */}
+              <button
+                onClick={checkClaudeCLI}
+                className="p-4 rounded-lg border-2 border-primary/30 bg-primary/5 hover:bg-primary/10 transition-colors text-left"
+              >
+                <div className="flex items-center gap-3 mb-2">
+                  <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center">
+                    <Terminal className="h-5 w-5 text-primary" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold">Claude CLI</h3>
+                    <span className="text-xs text-primary">Önerilen</span>
+                  </div>
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  Claude Max/Pro aboneliğin varsa ek ücret ödemeden kullan.
+                </p>
+              </button>
+
+              {/* API Key Option */}
+              <button
+                onClick={() => {
+                  setSelectedProvider('openai');
+                  setStep('api-setup');
+                }}
+                className="p-4 rounded-lg border hover:border-primary/50 hover:bg-muted/50 transition-colors text-left"
+              >
+                <div className="flex items-center gap-3 mb-2">
+                  <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center">
+                    <svg className="h-5 w-5 text-muted-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
+                    </svg>
+                  </div>
+                  <div>
+                    <h3 className="font-semibold">API Key</h3>
+                    <span className="text-xs text-muted-foreground">OpenAI, Anthropic, Gemini</span>
+                  </div>
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  Kendi API key'inle kullan. Key sadece oturumda tutulur.
+                </p>
+              </button>
             </div>
           </div>
         )}
 
-        {/* Checking Step */}
-        {step === 'checking' && (
+        {/* CLI Check Step */}
+        {step === 'cli-check' && (
           <div className="text-center py-8">
             <Loader2 className="h-12 w-12 animate-spin mx-auto mb-4 text-primary" />
             <h2 className="text-lg font-semibold mb-2">Kontrol Ediliyor...</h2>
-            <p className="text-sm text-muted-foreground">
-              Claude CLI aranıyor
-            </p>
+            <p className="text-sm text-muted-foreground">Claude CLI aranıyor</p>
           </div>
         )}
 
-        {/* Not Found Step */}
-        {step === 'not-found' && (
-          <div className="text-center">
-            <div className="w-16 h-16 rounded-full bg-amber-500/10 flex items-center justify-center mx-auto mb-6">
-              <Terminal className="h-8 w-8 text-amber-600" />
+        {/* CLI Setup Step */}
+        {step === 'cli-setup' && (
+          <div>
+            <div className="text-center mb-6">
+              <div className="w-14 h-14 rounded-full bg-amber-500/10 flex items-center justify-center mx-auto mb-4">
+                <Terminal className="h-7 w-7 text-amber-600" />
+              </div>
+              <h2 className="text-xl font-bold mb-2">Claude CLI Bulunamadı</h2>
+              <p className="text-muted-foreground text-sm">Kurulum için aşağıdaki komutu çalıştır</p>
             </div>
-            <h2 className="text-xl font-bold mb-2">Claude CLI Bulunamadı</h2>
-            <p className="text-muted-foreground mb-6">
-              AI özelliklerini kullanmak için Claude CLI'ı kurman gerekiyor
-            </p>
 
-            <div className="bg-muted rounded-lg p-4 mb-6 text-left">
-              <p className="text-xs text-muted-foreground mb-2">Terminal'de bu komutu çalıştır:</p>
-              <code className="bg-background px-3 py-2 rounded text-sm block font-mono">
-                npm install -g @anthropic-ai/claude-code
-              </code>
+            <div className="bg-muted rounded-lg p-4 mb-6">
+              <code className="text-sm font-mono block">npm install -g @anthropic-ai/claude-code</code>
             </div>
 
             <div className="space-y-3">
               <Button className="w-full" onClick={checkClaudeCLI}>
                 Tekrar Kontrol Et
               </Button>
-              <Button variant="outline" className="w-full" onClick={handleContinue}>
-                CLI olmadan devam et
+              <Button variant="outline" className="w-full" onClick={() => {
+                setSelectedProvider('openai');
+                setStep('api-setup');
+              }}>
+                API Key ile Devam Et
               </Button>
+              <button
+                onClick={() => handleComplete('claude-cli')}
+                className="w-full text-sm text-muted-foreground hover:text-foreground transition-colors"
+              >
+                AI olmadan devam et
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* API Setup Step */}
+        {step === 'api-setup' && (
+          <div>
+            <div className="flex items-center gap-2 mb-6">
+              <button
+                onClick={() => setStep('welcome')}
+                className="p-1 hover:bg-muted rounded transition-colors"
+              >
+                <ChevronLeft className="h-5 w-5" />
+              </button>
+              <h2 className="text-xl font-bold">API Key ile Bağlan</h2>
             </div>
 
-            <p className="text-xs text-muted-foreground mt-4">
-              CLI olmadan da prompt'ları düzenleyebilirsin, sadece AI önerileri çalışmaz.
-            </p>
+            {/* Provider Selection */}
+            <div className="mb-4">
+              <label className="text-sm font-medium mb-2 block">Servis Seç</label>
+              <div className="grid grid-cols-3 gap-2">
+                {(['openai', 'anthropic', 'google'] as AIProvider[]).map((provider) => (
+                  <button
+                    key={provider}
+                    onClick={() => {
+                      setSelectedProvider(provider);
+                      setApiKey('');
+                      setTestResult(null);
+                    }}
+                    className={`p-3 rounded-lg border text-center transition-colors ${
+                      selectedProvider === provider
+                        ? 'border-primary bg-primary/10'
+                        : 'hover:border-primary/50'
+                    }`}
+                  >
+                    <span className="text-sm font-medium">{providerInfo[provider].name}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* API Key Input */}
+            <div className="mb-4">
+              <label className="text-sm font-medium mb-2 block">API Key</label>
+              <div className="relative">
+                <input
+                  type="password"
+                  value={apiKey}
+                  onChange={(e) => {
+                    setApiKey(e.target.value);
+                    setTestResult(null);
+                  }}
+                  placeholder={providerInfo[selectedProvider].placeholder}
+                  className="w-full px-3 py-2 rounded-lg border bg-background focus:outline-none focus:ring-2 focus:ring-primary/50"
+                />
+              </div>
+              <a
+                href={providerInfo[selectedProvider].link}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-xs text-primary hover:underline mt-1 inline-block"
+              >
+                API key al →
+              </a>
+            </div>
+
+            {/* Test Result */}
+            {testResult && (
+              <div className={`p-3 rounded-lg mb-4 ${
+                testResult === 'success'
+                  ? 'bg-green-500/10 text-green-600'
+                  : 'bg-red-500/10 text-red-600'
+              }`}>
+                <p className="text-sm font-medium">
+                  {testResult === 'success' ? '✓ API key geçerli!' : '✗ API key geçersiz'}
+                </p>
+              </div>
+            )}
+
+            {/* Security Note */}
+            <div className="bg-muted/50 rounded-lg p-3 mb-6">
+              <p className="text-xs text-muted-foreground">
+                🔒 API key'in sadece bu oturumda tutulur, hiçbir yere kaydedilmez.
+              </p>
+            </div>
+
+            {/* Actions */}
+            <div className="space-y-3">
+              <Button
+                className="w-full"
+                onClick={testApiKey}
+                disabled={!apiKey.trim() || isTesting}
+              >
+                {isTesting ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    Test Ediliyor...
+                  </>
+                ) : (
+                  'Bağlantıyı Test Et'
+                )}
+              </Button>
+
+              <Button
+                variant="outline"
+                className="w-full"
+                onClick={() => handleComplete(selectedProvider, apiKey)}
+                disabled={!apiKey.trim()}
+              >
+                Kaydet ve Başla
+              </Button>
+            </div>
           </div>
         )}
 
@@ -612,10 +871,12 @@ function OnboardingScreen({ onComplete }: { onComplete: () => void }) {
             </div>
             <h2 className="text-xl font-bold mb-2">Her Şey Hazır!</h2>
             <p className="text-muted-foreground mb-6">
-              Claude CLI kurulu ve çalışıyor. Prompt Oz'u kullanmaya başlayabilirsin.
+              {selectedProvider === 'claude-cli'
+                ? 'Claude CLI kurulu ve çalışıyor.'
+                : `${providerInfo[selectedProvider].name} bağlantısı ayarlandı.`}
             </p>
 
-            <Button className="w-full" size="lg" onClick={handleContinue}>
+            <Button className="w-full" size="lg" onClick={() => handleComplete(selectedProvider, apiKey)}>
               <Logo size={18} className="mr-2" />
               Başla
             </Button>
@@ -644,9 +905,16 @@ function EditorApp() {
   const [showCreate, setShowCreate] = useState(false);
   const [newName, setNewName] = useState('');
   const [importJson, setImportJson] = useState('');
+  const [showSettings, setShowSettings] = useState(false);
 
   // Onboarding durumunu kontrol et
   useEffect(() => {
+    // DEV: Onboarding'i görmek için temizle
+    localStorage.removeItem('prompto-onboarding-complete');
+    localStorage.removeItem('prompto-ai-provider');
+    sessionStorage.removeItem('prompto-api-key');
+    sessionStorage.removeItem('prompto-ai-model');
+
     const completed = localStorage.getItem('prompto-onboarding-complete');
     setOnboardingComplete(completed === 'true');
   }, []);
@@ -698,13 +966,6 @@ function EditorApp() {
     setView('dashboard');
   };
 
-  const handleDelete = (e: React.MouseEvent, id: string) => {
-    e.stopPropagation();
-    if (window.confirm('Are you sure you want to delete this prompt?')) {
-      deletePrompt(id);
-    }
-  };
-
   // Sample prompt for demo
   const samplePrompt = {
     image_generation: {
@@ -750,6 +1011,15 @@ function EditorApp() {
     setView('editor');
   };
 
+  // Get current AI provider
+  const currentProvider = localStorage.getItem('prompto-ai-provider') || 'claude-cli';
+  const providerNames: Record<string, string> = {
+    'claude-cli': 'Claude CLI',
+    'openai': 'OpenAI',
+    'anthropic': 'Anthropic',
+    'google': 'Gemini'
+  };
+
   // EDITOR VIEW
   if (view === 'editor' && prompt) {
     return <EditorView prompt={prompt} onBack={handleBack} />;
@@ -757,152 +1027,286 @@ function EditorApp() {
 
   // DASHBOARD VIEW
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background to-muted/30">
+    <div className="min-h-screen bg-[#FAFAFA]">
       {/* Header */}
-      <header className="h-14 border-b bg-background/80 backdrop-blur-sm sticky top-0 z-10 flex items-center justify-between px-6">
-        <div className="flex items-center gap-2">
-          <Logo size={24} />
-          <h1 className="font-semibold">Prompt Oz</h1>
+      <header className="sticky top-0 z-20 bg-white/80 backdrop-blur-xl border-b border-neutral-200/50">
+        <div className="max-w-6xl mx-auto px-6 h-14 flex items-center justify-between">
+          <div className="flex items-center gap-2.5">
+            <Logo size={28} />
+            <span className="font-semibold text-neutral-800">Prompt Oz</span>
+          </div>
+
+          <div className="flex items-center gap-2">
+            {/* AI Status Chip */}
+            <button
+              onClick={() => setShowSettings(true)}
+              className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-50 hover:bg-emerald-100 transition-colors"
+            >
+              <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+              <span className="text-xs font-medium text-emerald-700">{providerNames[currentProvider]}</span>
+            </button>
+          </div>
         </div>
-        <Button size="sm" onClick={() => setShowCreate(true)}>
-          <Plus className="h-4 w-4 mr-2" />
-          Yeni Prompt
-        </Button>
       </header>
 
-      <main className="max-w-4xl mx-auto py-12 px-6">
-        {/* Welcome Section */}
-        <div className="text-center mb-12">
-          <h1 className="text-3xl font-bold mb-2">Prompt'larım</h1>
-          <p className="text-muted-foreground">
-            AI prompt'larını görselleştir ve düzenle
-          </p>
-        </div>
+      <main className="max-w-6xl mx-auto px-6 py-8">
+        {/* Bento Grid Layout */}
+        <div className="grid grid-cols-12 gap-4">
 
-        {/* Create dialog */}
-        {showCreate && (
-          <Card className="p-6 mb-8 border-primary/20">
-            <h2 className="font-semibold text-lg mb-4">Yeni Prompt Oluştur</h2>
-            <div className="space-y-4">
-              <div>
-                <label className="text-sm font-medium mb-1.5 block">İsim</label>
-                <Input
-                  placeholder="Örn: Image Generation Prompt"
-                  value={newName}
-                  onChange={(e) => setNewName(e.target.value)}
-                  className="h-11"
-                />
-              </div>
-              <div>
-                <label className="text-sm font-medium mb-1.5 block">
-                  JSON İçe Aktar <span className="text-muted-foreground font-normal">(opsiyonel)</span>
-                </label>
-                <Textarea
-                  placeholder='{"key": "value"}'
-                  value={importJson}
-                  onChange={(e) => setImportJson(e.target.value)}
-                  rows={5}
-                  className="font-mono text-sm"
-                />
-              </div>
-              <div className="flex gap-3 pt-2">
-                <Button onClick={handleCreate} className="flex-1">
-                  Oluştur
+          {/* Welcome Card - Large */}
+          <div className="col-span-12 md:col-span-8 bg-gradient-to-br from-violet-500 to-indigo-600 rounded-3xl p-8 text-white relative overflow-hidden">
+            {/* Pattern */}
+            <div className="absolute inset-0 opacity-10">
+              <svg className="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
+                <defs>
+                  <pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse">
+                    <circle cx="1" cy="1" r="1" fill="white"/>
+                  </pattern>
+                </defs>
+                <rect width="100" height="100" fill="url(#grid)"/>
+              </svg>
+            </div>
+
+            <div className="relative z-10">
+              <h1 className="text-3xl font-bold mb-2">Merhaba! 👋</h1>
+              <p className="text-white/80 mb-6 max-w-md">
+                JSON prompt'larını görsel olarak düzenle, AI ile anında optimize et.
+              </p>
+              <div className="flex gap-3">
+                <Button
+                  onClick={() => setShowCreate(true)}
+                  className="bg-white text-violet-600 hover:bg-white/90 shadow-lg"
+                >
+                  <Plus className="h-4 w-4 mr-2" />
+                  Yeni Prompt
                 </Button>
-                <Button variant="outline" onClick={() => setShowCreate(false)}>
-                  İptal
+                <Button
+                  variant="outline"
+                  onClick={handleCreateSample}
+                  className="border-white/30 text-white hover:bg-white/10 bg-white/5"
+                >
+                  <Sparkles className="h-4 w-4 mr-2" />
+                  Örnek Yükle
                 </Button>
               </div>
             </div>
-          </Card>
-        )}
 
-        {/* Prompts list */}
-        {prompts.length === 0 ? (
-          <Card className="p-16 text-center border-dashed">
-            <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-6">
-              <FileJson className="h-8 w-8 text-primary" />
+            {/* Floating Elements */}
+            <div className="absolute -right-4 -bottom-4 w-32 h-32 bg-white/10 rounded-full blur-2xl" />
+            <div className="absolute right-12 top-8 w-16 h-16 bg-yellow-400/20 rounded-2xl rotate-12" />
+          </div>
+
+          {/* Stats Card */}
+          <div className="col-span-12 md:col-span-4 bg-white rounded-3xl p-6 border border-neutral-200/50 shadow-sm">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-10 h-10 rounded-xl bg-amber-100 flex items-center justify-center">
+                <FileJson className="h-5 w-5 text-amber-600" />
+              </div>
+              <div>
+                <p className="text-2xl font-bold text-neutral-800">{prompts.length}</p>
+                <p className="text-sm text-neutral-500">Toplam Prompt</p>
+              </div>
             </div>
-            <h2 className="text-xl font-semibold mb-2">Henüz prompt yok</h2>
-            <p className="text-muted-foreground mb-8 max-w-sm mx-auto">
-              İlk prompt'unu oluştur veya örnek bir prompt yükle
-            </p>
-            <div className="flex gap-3 justify-center">
-              <Button onClick={() => setShowCreate(true)} size="lg">
-                <Plus className="h-4 w-4 mr-2" />
-                Yeni Oluştur
-              </Button>
-              <Button variant="outline" onClick={handleCreateSample} size="lg">
-                <Upload className="h-4 w-4 mr-2" />
-                Örnek Yükle
-              </Button>
+            <div className="h-px bg-neutral-100 my-4" />
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-violet-100 flex items-center justify-center">
+                <Sparkles className="h-5 w-5 text-violet-600" />
+              </div>
+              <div>
+                <p className="text-sm font-medium text-neutral-800">AI Asistan</p>
+                <p className="text-xs text-neutral-500">Düzenlemeye hazır</p>
+              </div>
             </div>
-          </Card>
-        ) : (
-          <div className="space-y-3">
-            {prompts.map((p) => (
-              <Card
-                key={p.id}
-                className="group p-4 cursor-pointer hover:border-primary/50 hover:shadow-md transition-all"
-                onClick={() => handleOpen(p.id)}
+          </div>
+
+          {/* Prompts Section Header */}
+          <div className="col-span-12 flex items-center justify-between mt-4">
+            <h2 className="text-lg font-semibold text-neutral-800">Prompt'larım</h2>
+            {prompts.length > 0 && (
+              <button
+                onClick={() => setShowCreate(true)}
+                className="text-sm text-violet-600 hover:text-violet-700 font-medium flex items-center gap-1"
               >
-                <div className="flex items-center gap-4">
-                  {/* Icon */}
-                  <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
-                    <FileJson className="h-6 w-6 text-primary" />
-                  </div>
+                <Plus className="h-4 w-4" />
+                Ekle
+              </button>
+            )}
+          </div>
 
-                  {/* Content */}
-                  <div className="flex-1 min-w-0">
-                    <h3 className="font-medium text-lg truncate">{p.name}</h3>
-                    <p className="text-sm text-muted-foreground">
-                      {Object.keys(p.content).length} alan • {new Date(p.updatedAt).toLocaleDateString('tr-TR')}
-                    </p>
-                  </div>
+          {/* Prompt Cards */}
+          {prompts.length === 0 ? (
+            <div className="col-span-12 bg-white rounded-3xl border-2 border-dashed border-neutral-200 p-12 text-center">
+              <div className="w-16 h-16 rounded-2xl bg-neutral-100 flex items-center justify-center mx-auto mb-4">
+                <FileJson className="h-8 w-8 text-neutral-400" />
+              </div>
+              <h3 className="font-semibold text-neutral-800 mb-1">Henüz prompt yok</h3>
+              <p className="text-sm text-neutral-500 mb-4">İlk prompt'unu oluşturarak başla</p>
+            </div>
+          ) : (
+            prompts.map((p, index) => {
+              const colors = [
+                { bg: 'bg-rose-50', icon: 'bg-rose-100', iconColor: 'text-rose-500', border: 'hover:border-rose-200' },
+                { bg: 'bg-sky-50', icon: 'bg-sky-100', iconColor: 'text-sky-500', border: 'hover:border-sky-200' },
+                { bg: 'bg-amber-50', icon: 'bg-amber-100', iconColor: 'text-amber-500', border: 'hover:border-amber-200' },
+                { bg: 'bg-emerald-50', icon: 'bg-emerald-100', iconColor: 'text-emerald-500', border: 'hover:border-emerald-200' },
+                { bg: 'bg-violet-50', icon: 'bg-violet-100', iconColor: 'text-violet-500', border: 'hover:border-violet-200' },
+              ];
+              const color = colors[index % colors.length];
 
-                  {/* Actions */}
-                  <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+              return (
+                <div
+                  key={p.id}
+                  className={`col-span-12 sm:col-span-6 lg:col-span-4 ${color.bg} rounded-2xl p-5 cursor-pointer border-2 border-transparent ${color.border} transition-all duration-200 group`}
+                  onClick={() => handleOpen(p.id)}
+                >
+                  <div className="flex items-start justify-between mb-3">
+                    <div className={`w-10 h-10 rounded-xl ${color.icon} flex items-center justify-center`}>
+                      <FileJson className={`h-5 w-5 ${color.iconColor}`} />
+                    </div>
                     <button
-                      type="button"
-                      className="h-9 w-9 rounded-md flex items-center justify-center hover:bg-muted transition-colors"
-                      onMouseDown={(e) => e.stopPropagation()}
+                      className="opacity-0 group-hover:opacity-100 h-8 w-8 rounded-lg flex items-center justify-center text-neutral-400 hover:text-red-500 hover:bg-white/50 transition-all"
                       onClick={(e) => {
                         e.stopPropagation();
-                        e.preventDefault();
-                        handleOpen(p.id);
-                      }}
-                    >
-                      <Edit className="h-4 w-4" />
-                    </button>
-                    <button
-                      type="button"
-                      className="h-9 w-9 rounded-md flex items-center justify-center text-destructive hover:bg-destructive/10 transition-colors"
-                      onMouseDown={(e) => e.stopPropagation()}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        e.preventDefault();
-                        // Direkt sil (Tauri'de confirm çalışmıyor)
                         deletePrompt(p.id);
                       }}
                     >
                       <Trash2 className="h-4 w-4" />
                     </button>
                   </div>
+                  <h3 className="font-semibold text-neutral-800 mb-1 truncate">{p.name}</h3>
+                  <p className="text-xs text-neutral-500">
+                    {Object.keys(p.content).length} alan • {new Date(p.updatedAt).toLocaleDateString('tr-TR')}
+                  </p>
                 </div>
-              </Card>
-            ))}
+              );
+            })
+          )}
 
-            {/* Add more button */}
-            <Card
-              className="p-4 border-dashed cursor-pointer hover:border-primary/50 transition-colors flex items-center justify-center gap-2 text-muted-foreground hover:text-foreground"
+          {/* Quick Add Card */}
+          {prompts.length > 0 && (
+            <div
+              className="col-span-12 sm:col-span-6 lg:col-span-4 bg-white rounded-2xl p-5 cursor-pointer border-2 border-dashed border-neutral-200 hover:border-violet-300 hover:bg-violet-50/50 transition-all duration-200 flex items-center justify-center min-h-[120px]"
               onClick={() => setShowCreate(true)}
             >
-              <Plus className="h-5 w-5" />
-              <span>Yeni Prompt Ekle</span>
-            </Card>
-          </div>
-        )}
+              <div className="text-center">
+                <div className="w-10 h-10 rounded-xl bg-neutral-100 flex items-center justify-center mx-auto mb-2">
+                  <Plus className="h-5 w-5 text-neutral-400" />
+                </div>
+                <p className="text-sm font-medium text-neutral-500">Yeni Prompt</p>
+              </div>
+            </div>
+          )}
+        </div>
       </main>
+
+      {/* Create Modal */}
+      {showCreate && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/20 backdrop-blur-sm" onClick={() => setShowCreate(false)} />
+          <Card className="relative w-full max-w-lg bg-white rounded-3xl shadow-2xl p-6">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-xl font-bold text-neutral-800">Yeni Prompt</h2>
+              <button
+                onClick={() => setShowCreate(false)}
+                className="h-8 w-8 rounded-full flex items-center justify-center text-neutral-400 hover:text-neutral-600 hover:bg-neutral-100 transition-colors"
+              >
+                <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            <div className="space-y-4">
+              <div>
+                <label className="text-sm font-medium text-neutral-700 mb-2 block">Prompt Adı</label>
+                <Input
+                  placeholder="Örn: Image Generation Prompt"
+                  value={newName}
+                  onChange={(e) => setNewName(e.target.value)}
+                  className="h-12 rounded-xl border-neutral-200 focus:border-violet-500 focus:ring-violet-500/20"
+                />
+              </div>
+              <div>
+                <label className="text-sm font-medium text-neutral-700 mb-2 block">
+                  JSON İçe Aktar <span className="text-neutral-400 font-normal">(opsiyonel)</span>
+                </label>
+                <Textarea
+                  placeholder='{"key": "value"}'
+                  value={importJson}
+                  onChange={(e) => setImportJson(e.target.value)}
+                  rows={5}
+                  className="font-mono text-sm rounded-xl border-neutral-200 focus:border-violet-500 focus:ring-violet-500/20"
+                />
+              </div>
+              <div className="flex gap-3 pt-2">
+                <Button
+                  onClick={handleCreate}
+                  className="flex-1 h-11 rounded-xl bg-violet-600 hover:bg-violet-700"
+                  disabled={!newName.trim()}
+                >
+                  Oluştur
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => setShowCreate(false)}
+                  className="h-11 rounded-xl"
+                >
+                  İptal
+                </Button>
+              </div>
+            </div>
+          </Card>
+        </div>
+      )}
+
+      {/* Settings Modal */}
+      {showSettings && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/20 backdrop-blur-sm" onClick={() => setShowSettings(false)} />
+          <Card className="relative w-full max-w-sm bg-white rounded-3xl shadow-2xl p-6">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-xl font-bold text-neutral-800">Ayarlar</h2>
+              <button
+                onClick={() => setShowSettings(false)}
+                className="h-8 w-8 rounded-full flex items-center justify-center text-neutral-400 hover:text-neutral-600 hover:bg-neutral-100 transition-colors"
+              >
+                <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            <div className="space-y-4">
+              <div className="p-4 rounded-2xl bg-emerald-50 border border-emerald-100">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-emerald-100 flex items-center justify-center">
+                      <Check className="h-5 w-5 text-emerald-600" />
+                    </div>
+                    <div>
+                      <p className="font-medium text-neutral-800">{providerNames[currentProvider]}</p>
+                      <p className="text-xs text-emerald-600">Bağlı</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <Button
+                variant="outline"
+                className="w-full h-11 rounded-xl"
+                onClick={() => {
+                  localStorage.removeItem('prompto-onboarding-complete');
+                  localStorage.removeItem('prompto-ai-provider');
+                  sessionStorage.removeItem('prompto-api-key');
+                  window.location.reload();
+                }}
+              >
+                AI Ayarlarını Değiştir
+              </Button>
+            </div>
+          </Card>
+        </div>
+      )}
     </div>
   );
 }
