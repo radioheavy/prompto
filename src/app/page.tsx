@@ -128,7 +128,7 @@ function ScreenshotShowcase() {
 }
 
 type View = 'dashboard' | 'editor';
-type AppMode = 'loading' | 'desktop' | 'web' | 'mobile';
+type AppMode = 'loading' | 'desktop' | 'web' | 'mobile-web' | 'mobile-pwa';
 
 // Mobil algılama
 function isMobileDevice() {
@@ -137,10 +137,17 @@ function isMobileDevice() {
     || window.innerWidth < 768;
 }
 
+// PWA (standalone) algılama
+function isStandalone() {
+  if (typeof window === 'undefined') return false;
+  return window.matchMedia('(display-mode: standalone)').matches
+    || (window.navigator as Navigator & { standalone?: boolean }).standalone === true;
+}
+
 export default function App() {
   const [appMode, setAppMode] = useState<AppMode>('loading');
 
-  // Tauri ve mobil kontrolü
+  // Tauri, mobil ve PWA kontrolü
   useEffect(() => {
     const checkEnvironment = async () => {
       // Kısa bir delay ile kontrol (hydration için)
@@ -149,7 +156,12 @@ export default function App() {
       if (typeof window !== 'undefined' && '__TAURI_INTERNALS__' in window) {
         setAppMode('desktop');
       } else if (isMobileDevice()) {
-        setAppMode('mobile');
+        // Mobil: PWA mı yoksa normal browser mı?
+        if (isStandalone()) {
+          setAppMode('mobile-pwa');
+        } else {
+          setAppMode('mobile-web');
+        }
       } else {
         setAppMode('web');
       }
@@ -170,9 +182,14 @@ export default function App() {
     );
   }
 
-  // Mobile mode → Mobile App
-  if (appMode === 'mobile') {
+  // Mobile PWA mode → Full Mobile App
+  if (appMode === 'mobile-pwa') {
     return <MobileApp />;
+  }
+
+  // Mobile Web mode → Landing with "Add to Home Screen" prompt
+  if (appMode === 'mobile-web') {
+    return <MobileLanding />;
   }
 
   // Web mode → Landing Page
@@ -976,6 +993,156 @@ function OnboardingScreen({ onComplete }: { onComplete: () => void }) {
           </div>
         )}
       </Card>
+    </div>
+  );
+}
+
+// ============================================
+// MOBILE LANDING (Mobil tarayıcı için)
+// ============================================
+function MobileLanding() {
+  const [isIOS, setIsIOS] = useState(false);
+  const [showInstructions, setShowInstructions] = useState(false);
+
+  useEffect(() => {
+    setIsIOS(/iPad|iPhone|iPod/.test(navigator.userAgent));
+  }, []);
+
+  return (
+    <div className="min-h-screen bg-gradient-to-b from-violet-50 via-white to-violet-50">
+      {/* Header */}
+      <div className="pt-12 pb-6 px-6 text-center">
+        <Logo size={64} className="mx-auto mb-4" />
+        <h1 className="text-3xl font-bold mb-2">Prompt Oz</h1>
+        <p className="text-muted-foreground">AI Prompt Editörü</p>
+      </div>
+
+      {/* Features */}
+      <div className="px-6 py-4">
+        <div className="space-y-3">
+          <div className="flex items-center gap-3 p-4 bg-white rounded-xl border">
+            <div className="w-10 h-10 rounded-lg bg-violet-100 flex items-center justify-center shrink-0">
+              <Eye className="h-5 w-5 text-violet-600" />
+            </div>
+            <div>
+              <p className="font-medium text-sm">Görsel Düzenleme</p>
+              <p className="text-xs text-muted-foreground">JSON'u ağaç olarak gör</p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-3 p-4 bg-white rounded-xl border">
+            <div className="w-10 h-10 rounded-lg bg-emerald-100 flex items-center justify-center shrink-0">
+              <Sparkles className="h-5 w-5 text-emerald-600" />
+            </div>
+            <div>
+              <p className="font-medium text-sm">AI ile Düzenleme</p>
+              <p className="text-xs text-muted-foreground">Doğal dille prompt düzenle</p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-3 p-4 bg-white rounded-xl border">
+            <div className="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center shrink-0">
+              <Zap className="h-5 w-5 text-blue-600" />
+            </div>
+            <div>
+              <p className="font-medium text-sm">Çoklu AI Desteği</p>
+              <p className="text-xs text-muted-foreground">OpenAI, Anthropic, Google</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Add to Home Screen Section */}
+      <div className="fixed bottom-0 left-0 right-0 p-4 bg-white border-t shadow-lg">
+        <div className="max-w-md mx-auto">
+          <p className="text-center text-sm text-muted-foreground mb-3">
+            Uygulama olarak kullanmak için ana ekrana ekle
+          </p>
+
+          <Button
+            className="w-full gap-2 h-12 text-base"
+            onClick={() => setShowInstructions(true)}
+          >
+            <Plus className="h-5 w-5" />
+            Ana Ekrana Ekle
+          </Button>
+
+          {isIOS && (
+            <p className="text-xs text-center text-muted-foreground mt-2">
+              Safari'de <span className="inline-flex items-center"><Upload className="h-3 w-3 mx-1" /></span> simgesine tıkla
+            </p>
+          )}
+        </div>
+      </div>
+
+      {/* Instructions Modal */}
+      {showInstructions && (
+        <div className="fixed inset-0 bg-black/50 flex items-end z-50" onClick={() => setShowInstructions(false)}>
+          <div className="bg-white w-full rounded-t-3xl p-6 pb-10" onClick={e => e.stopPropagation()}>
+            <div className="w-12 h-1 bg-neutral-300 rounded-full mx-auto mb-6" />
+
+            <h2 className="text-xl font-bold mb-4 text-center">Ana Ekrana Nasıl Eklenir?</h2>
+
+            {isIOS ? (
+              <div className="space-y-4">
+                <div className="flex items-start gap-3">
+                  <div className="w-8 h-8 rounded-full bg-violet-100 flex items-center justify-center shrink-0 text-sm font-bold text-violet-600">1</div>
+                  <div>
+                    <p className="font-medium">Safari'de paylaş butonuna tıkla</p>
+                    <p className="text-sm text-muted-foreground">Alttaki <Upload className="h-4 w-4 inline mx-1" /> simgesi</p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3">
+                  <div className="w-8 h-8 rounded-full bg-violet-100 flex items-center justify-center shrink-0 text-sm font-bold text-violet-600">2</div>
+                  <div>
+                    <p className="font-medium">"Ana Ekrana Ekle" seç</p>
+                    <p className="text-sm text-muted-foreground">Listede aşağı kaydır</p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3">
+                  <div className="w-8 h-8 rounded-full bg-violet-100 flex items-center justify-center shrink-0 text-sm font-bold text-violet-600">3</div>
+                  <div>
+                    <p className="font-medium">"Ekle" butonuna tıkla</p>
+                    <p className="text-sm text-muted-foreground">Uygulama ana ekranına eklenecek</p>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                <div className="flex items-start gap-3">
+                  <div className="w-8 h-8 rounded-full bg-violet-100 flex items-center justify-center shrink-0 text-sm font-bold text-violet-600">1</div>
+                  <div>
+                    <p className="font-medium">Tarayıcı menüsünü aç</p>
+                    <p className="text-sm text-muted-foreground">Sağ üstteki ⋮ simgesi</p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3">
+                  <div className="w-8 h-8 rounded-full bg-violet-100 flex items-center justify-center shrink-0 text-sm font-bold text-violet-600">2</div>
+                  <div>
+                    <p className="font-medium">"Ana ekrana ekle" seç</p>
+                    <p className="text-sm text-muted-foreground">Veya "Uygulamayı yükle"</p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3">
+                  <div className="w-8 h-8 rounded-full bg-violet-100 flex items-center justify-center shrink-0 text-sm font-bold text-violet-600">3</div>
+                  <div>
+                    <p className="font-medium">"Yükle" butonuna tıkla</p>
+                    <p className="text-sm text-muted-foreground">Uygulama ana ekranına eklenecek</p>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            <Button
+              variant="outline"
+              className="w-full mt-6"
+              onClick={() => setShowInstructions(false)}
+            >
+              Anladım
+            </Button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
