@@ -75,7 +75,7 @@ export function Header({ showBackButton = false }: HeaderProps) {
                 }
               }}
             >
-              {prompt?.name || 'Prompt Oz'}
+              {prompt?.name || 'Promptica'}
             </h1>
           )}
         </div>

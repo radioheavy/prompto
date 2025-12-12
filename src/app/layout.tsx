@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Prompt Oz - AI Prompt Editor",
+  title: "Promptica - AI Prompt Editor",
   description: "AI prompt'larını görselleştir ve düzenle. Claude CLI ile entegre çalışır.",
   icons: {
     icon: [
@@ -26,7 +26,7 @@ export const metadata: Metadata = {
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
-    title: "Prompt Oz",
+    title: "Promptica",
   },
 };
 

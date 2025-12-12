@@ -1,6 +1,6 @@
 name: app
 options:
-  bundleIdPrefix: com.promptoz.app
+  bundleIdPrefix: com.promptica.app
   deploymentTarget:
     iOS: 14.0
 fileGroups: [../../src]
@@ -10,8 +10,8 @@ configs:
 settingGroups:
   app:
     base:
-      PRODUCT_NAME: Prompt Oz
-      PRODUCT_BUNDLE_IDENTIFIER: com.promptoz.app
+      PRODUCT_NAME: Promptica
+      PRODUCT_BUNDLE_IDENTIFIER: com.promptica.app
 targetTemplates:
   app:
     type: application

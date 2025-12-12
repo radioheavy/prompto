@@ -170,7 +170,7 @@ export const usePromptStore = create<PromptStore>()(
       setAIError: (error) => set({ aiError: error }),
     }),
     {
-      name: 'prompto-storage',
+      name: 'promptica-storage',
       partialize: (state) => ({
         prompts: state.prompts,
         currentPromptId: state.currentPromptId,
