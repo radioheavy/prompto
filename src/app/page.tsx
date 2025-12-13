@@ -67,11 +67,11 @@ const WINDOWS_DOWNLOAD = 'https://github.com/radioheavy/prompto/releases/latest'
 
 // Screenshot data
 const screenshots = [
-  { src: '/a/1.png', rotate: -15, x: -320, label: 'Hoş Geldin' },
-  { src: '/a/2.png', rotate: -8, x: -160, label: 'Hazır!' },
-  { src: '/a/3.png', rotate: 0, x: 0, label: 'Editör' },
-  { src: '/a/5.png', rotate: 8, x: 160, label: 'AI Asistan' },
-  { src: '/a/7.png', rotate: 15, x: 320, label: 'AI Önerisi' },
+  { src: '/a/new-1-welcome.png', rotate: -15, x: -320, label: 'Hoş Geldin' },
+  { src: '/a/new-2-dashboard.png', rotate: -8, x: -160, label: 'Dashboard' },
+  { src: '/a/new-3-editor.png', rotate: 0, x: 0, label: 'Editör' },
+  { src: '/a/new-4-expander.png', rotate: 8, x: 160, label: 'Prompt Genişlet' },
+  { src: '/a/new-6-reverse-result.png', rotate: 15, x: 320, label: 'Tersine Mühendislik' },
 ];
 
 function ScreenshotShowcase() {
@@ -272,11 +272,12 @@ function LandingPage() {
         </p>
 
         <p className="text-lg text-muted-foreground max-w-2xl mx-auto mb-12">
-          Uzun ve karmaşık JSON prompt'larını <span className="text-foreground font-medium">görsel ağaç yapısında</span> gör,
-          <span className="text-foreground font-medium"> tek tıkla düzenle</span> ve
-          <span className="text-primary font-semibold"> AI ile otomatik iyileştir</span>.
+          JSON prompt'larını <span className="text-foreground font-medium">görsel ağaç yapısında</span> gör,
+          <span className="text-foreground font-medium"> tek tıkla düzenle</span>,
+          <span className="text-primary font-semibold"> AI ile prompt genişlet</span> ve
+          <span className="text-primary font-semibold"> görselden tersine mühendislik</span> yap.
           <br />
-          <span className="text-sm mt-2 block">Claude CLI veya OpenAI, Anthropic, Gemini API key ile kullan.</span>
+          <span className="text-sm mt-2 block">fal.ai veya Wiro ile prompt'larından görsel üret.</span>
         </p>
 
         {/* Download Section */}
@@ -299,13 +300,13 @@ function LandingPage() {
 
           <div className="text-sm text-muted-foreground space-y-1">
             <p>✓ macOS 11+ (Apple Silicon)</p>
-            <p>✓ Sadece 7.4MB - Hızlı indirme</p>
+            <p>✓ Sadece 16MB - Hızlı indirme</p>
             <p>✓ Kurulum gerektirmez - Aç ve kullan</p>
           </div>
         </Card>
 
         <p className="text-xs text-muted-foreground">
-          Versiyon 0.1.0
+          Versiyon 0.3.0
         </p>
       </section>
 
@@ -381,12 +382,12 @@ function LandingPage() {
           AI image generation, chatbot ya da herhangi bir AI sistemi için yazdığın prompt'ları kolayca yönet
         </p>
 
-        <div className="grid md:grid-cols-3 gap-8 max-w-4xl mx-auto">
+        <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
           <Card className="p-6 text-center">
             <Eye className="h-10 w-10 text-primary mx-auto mb-4" />
             <h3 className="font-semibold text-lg mb-2">Görsel Ağaç Yapısı</h3>
             <p className="text-muted-foreground text-sm">
-              Yüzlerce satırlık JSON'u anlaşılır bir ağaç olarak gör. Her alan açılır-kapanır, iç içe yapılar net görünür.
+              Yüzlerce satırlık JSON'u anlaşılır bir ağaç olarak gör. Her alan açılır-kapanır.
             </p>
           </Card>
 
@@ -394,7 +395,7 @@ function LandingPage() {
             <Zap className="h-10 w-10 text-primary mx-auto mb-4" />
             <h3 className="font-semibold text-lg mb-2">Tek Tıkla Düzenleme</h3>
             <p className="text-muted-foreground text-sm">
-              Değiştirmek istediğin alana tıkla, yeni değeri yaz. Boolean'lar için toggle, array'ler için liste editörü.
+              Değiştirmek istediğin alana tıkla, yeni değeri yaz. Boolean'lar için toggle.
             </p>
           </Card>
 
@@ -402,7 +403,31 @@ function LandingPage() {
             <MessageSquare className="h-10 w-10 text-primary mx-auto mb-4" />
             <h3 className="font-semibold text-lg mb-2">AI ile Düzenleme</h3>
             <p className="text-muted-foreground text-sm">
-              "Lighting'i daha dramatik yap" yaz, Claude otomatik güncellesin. Kod yazmadan prompt optimize et.
+              "Lighting'i daha dramatik yap" yaz, AI otomatik güncellesin.
+            </p>
+          </Card>
+
+          <Card className="p-6 text-center border-primary/30 bg-primary/5">
+            <Sparkles className="h-10 w-10 text-primary mx-auto mb-4" />
+            <h3 className="font-semibold text-lg mb-2">Prompt Genişlet</h3>
+            <p className="text-muted-foreground text-sm">
+              Basit bir prompt'u zengin, detaylı bir prompt'a dönüştür. Sahne, stil, ışık, renk ekle.
+            </p>
+          </Card>
+
+          <Card className="p-6 text-center border-purple-500/30 bg-purple-500/5">
+            <RotateCcw className="h-10 w-10 text-purple-500 mx-auto mb-4" />
+            <h3 className="font-semibold text-lg mb-2">Tersine Mühendislik</h3>
+            <p className="text-muted-foreground text-sm">
+              Bir görseli yükle, AI analiz etsin ve onu yeniden üretecek prompt'u çıkarsın.
+            </p>
+          </Card>
+
+          <Card className="p-6 text-center border-pink-500/30 bg-pink-500/5">
+            <ImageIcon className="h-10 w-10 text-pink-500 mx-auto mb-4" />
+            <h3 className="font-semibold text-lg mb-2">Görsel Üretim</h3>
+            <p className="text-muted-foreground text-sm">
+              fal.ai veya Wiro ile prompt'larından direkt görsel üretin. Flux, SDXL ve daha fazlası.
             </p>
           </Card>
         </div>
@@ -411,7 +436,7 @@ function LandingPage() {
       {/* How it works */}
       <section className="container mx-auto px-4 py-16 bg-muted/50">
         <h2 className="text-3xl font-bold text-center mb-4">Kurulum</h2>
-        <p className="text-center text-muted-foreground mb-12">3 adımda hazır</p>
+        <p className="text-center text-muted-foreground mb-12">4 adımda hazır</p>
 
         <div className="max-w-2xl mx-auto">
           <div className="relative">
@@ -431,15 +456,23 @@ function LandingPage() {
                 <div className="w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-bold shrink-0 z-10">2</div>
                 <div className="pt-1">
                   <h3 className="font-semibold mb-1">AI Bağlantısını Ayarla</h3>
-                  <p className="text-muted-foreground text-sm">Claude CLI kur veya ayarlardan OpenAI, Anthropic, Gemini API key'ini gir.</p>
+                  <p className="text-muted-foreground text-sm">Claude CLI kur veya OpenAI, Anthropic, Gemini API key'ini gir.</p>
                 </div>
               </div>
 
               <div className="flex items-start gap-6 relative">
                 <div className="w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-bold shrink-0 z-10">3</div>
                 <div className="pt-1">
+                  <h3 className="font-semibold mb-1">Görsel Üretimi Ayarla (Opsiyonel)</h3>
+                  <p className="text-muted-foreground text-sm">fal.ai veya Wiro API key'ini gir, prompt'larından görsel üret.</p>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-6 relative">
+                <div className="w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-bold shrink-0 z-10">4</div>
+                <div className="pt-1">
                   <h3 className="font-semibold mb-1">Kullanmaya Başla</h3>
-                  <p className="text-muted-foreground text-sm">Yeni prompt oluştur veya var olan JSON'unu yapıştır. AI panelinden doğal dille düzenle.</p>
+                  <p className="text-muted-foreground text-sm">Prompt oluştur, genişlet, tersine mühendislik yap veya görsel üret!</p>
                 </div>
               </div>
             </div>
@@ -452,12 +485,14 @@ function LandingPage() {
         <h2 className="text-3xl font-bold text-center mb-4">Neden Avalon?</h2>
         <p className="text-center text-muted-foreground mb-12">Prompt yönetimini kolaylaştıran özellikler</p>
 
-        <div className="max-w-2xl mx-auto grid sm:grid-cols-2 gap-4">
+        <div className="max-w-3xl mx-auto grid sm:grid-cols-2 gap-4">
           {[
             { text: 'Çoklu AI Desteği', desc: 'OpenAI, Anthropic, Gemini, Claude CLI' },
+            { text: 'Görsel Üretim', desc: 'fal.ai ve Wiro entegrasyonu' },
+            { text: 'Prompt Genişlet', desc: 'Basit prompt\'u zenginleştir' },
+            { text: 'Tersine Mühendislik', desc: 'Görselden prompt çıkar' },
             { text: 'Tamamen ücretsiz', desc: 'Açık kaynak, ücret yok' },
             { text: 'Güvenli', desc: 'API key saklanmaz, sadece oturumda' },
-            { text: 'Hızlı başlangıç', desc: 'İndir, aç, kullan' },
           ].map((benefit, i) => (
             <Card key={i} className="p-4 flex items-start gap-3">
               <Check className="h-5 w-5 text-green-500 mt-0.5 shrink-0" />
