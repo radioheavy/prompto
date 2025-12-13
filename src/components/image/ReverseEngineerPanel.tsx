@@ -2,6 +2,7 @@
 
 import { useState, useCallback } from 'react';
 import { usePromptStore } from '@/lib/store/promptStore';
+import { JsonObject } from '@/types/prompt';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import {
@@ -270,7 +271,7 @@ export function ReverseEngineerPanel({ onClose }: ReverseEngineerPanelProps) {
   const handleSaveAsPrompt = () => {
     if (reversedPrompt) {
       const promptName = `Reverse: ${reversedPrompt.scene?.slice(0, 25) || 'Image'}...`;
-      createPrompt(promptName, reversedPrompt);
+      createPrompt(promptName, reversedPrompt as unknown as JsonObject);
       setSaved(true);
       setTimeout(() => setSaved(false), 2000);
     }
