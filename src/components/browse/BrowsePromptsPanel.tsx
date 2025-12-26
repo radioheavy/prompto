@@ -1,0 +1,381 @@
+'use client';
+
+import { useState, useEffect, useCallback } from 'react';
+import { usePromptStore } from '@/lib/store/promptStore';
+import {
+  Search,
+  X,
+  Download,
+  Loader2,
+  FileJson,
+  Image as ImageIcon,
+  Video,
+  Music,
+  FileText,
+  Tag,
+  User,
+  Calendar,
+  Check,
+  ExternalLink,
+  Sparkles,
+} from 'lucide-react';
+
+interface PromptResult {
+  id: string;
+  slug: string;
+  title: string;
+  description: string | null;
+  content: string;
+  type: 'TEXT' | 'STRUCTURED' | 'IMAGE' | 'VIDEO' | 'AUDIO';
+  structuredFormat: 'JSON' | 'YAML' | null;
+  author: string;
+  category: string;
+  tags: string[];
+  votes: number;
+  createdAt: string;
+}
+
+interface BrowsePromptsPanelProps {
+  onClose: () => void;
+}
+
+const typeIcons = {
+  TEXT: FileText,
+  STRUCTURED: FileJson,
+  IMAGE: ImageIcon,
+  VIDEO: Video,
+  AUDIO: Music,
+};
+
+const typeColors = {
+  TEXT: 'bg-blue-100 text-blue-600',
+  STRUCTURED: 'bg-violet-100 text-violet-600',
+  IMAGE: 'bg-pink-100 text-pink-600',
+  VIDEO: 'bg-red-100 text-red-600',
+  AUDIO: 'bg-amber-100 text-amber-600',
+};
+
+export function BrowsePromptsPanel({ onClose }: BrowsePromptsPanelProps) {
+  const { createPrompt, setCurrentPrompt } = usePromptStore();
+
+  const [query, setQuery] = useState('');
+  const [results, setResults] = useState<PromptResult[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [selectedType, setSelectedType] = useState<string | null>(null);
+  const [importedIds, setImportedIds] = useState<Set<string>>(new Set());
+  const [error, setError] = useState<string | null>(null);
+  const [hasSearched, setHasSearched] = useState(false);
+
+  // Debounced search
+  const searchPrompts = useCallback(async (searchQuery: string, type?: string) => {
+    if (!searchQuery.trim()) {
+      setResults([]);
+      setHasSearched(false);
+      return;
+    }
+
+    setIsLoading(true);
+    setError(null);
+    setHasSearched(true);
+
+    try {
+      const response = await fetch('/api/prompts-chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'search',
+          query: searchQuery,
+          limit: 20,
+          ...(type && { type }),
+        }),
+      });
+
+      const data = await response.json();
+
+      if (data.success && data.data?.prompts) {
+        setResults(data.data.prompts);
+      } else {
+        setResults([]);
+        if (data.error) {
+          setError(data.error);
+        }
+      }
+    } catch (err) {
+      console.error('Search error:', err);
+      setError('Failed to search prompts');
+      setResults([]);
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  // Debounce effect
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (query.trim()) {
+        searchPrompts(query, selectedType || undefined);
+      }
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [query, selectedType, searchPrompts]);
+
+  // Import prompt
+  const handleImport = (prompt: PromptResult) => {
+    let content = {};
+
+    // Try to parse content as JSON
+    try {
+      content = JSON.parse(prompt.content);
+    } catch {
+      // If not JSON, wrap in an object
+      content = { prompt: prompt.content };
+    }
+
+    const id = createPrompt(prompt.title, content);
+    setImportedIds((prev) => new Set([...prev, prompt.id]));
+
+    // Optional: Navigate to the prompt
+    // setCurrentPrompt(id);
+    // onClose();
+  };
+
+  // Type filter buttons
+  const types = [
+    { value: null, label: 'All' },
+    { value: 'IMAGE', label: 'Image' },
+    { value: 'TEXT', label: 'Text' },
+    { value: 'STRUCTURED', label: 'Structured' },
+  ];
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      {/* Backdrop */}
+      <div
+        className="absolute inset-0 bg-black/30 backdrop-blur-sm"
+        onClick={onClose}
+      />
+
+      {/* Panel */}
+      <div className="relative w-full max-w-3xl max-h-[85vh] bg-white rounded-3xl shadow-2xl overflow-hidden flex flex-col">
+        {/* Header */}
+        <div className="px-6 py-5 border-b border-gray-100 bg-gray-50/50">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center">
+                <Sparkles className="h-5 w-5 text-white" />
+              </div>
+              <div>
+                <h2 className="text-xl font-semibold text-gray-900">Browse Prompts</h2>
+                <p className="text-sm text-gray-500">Discover prompts from prompts.chat</p>
+              </div>
+            </div>
+            <button
+              onClick={onClose}
+              className="w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors"
+            >
+              <X className="h-4 w-4 text-gray-600" />
+            </button>
+          </div>
+
+          {/* Search Input */}
+          <div className="relative">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+            <input
+              type="text"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Search prompts... (e.g. image generation, coding assistant)"
+              className="w-full h-12 pl-12 pr-4 bg-white rounded-xl border border-gray-200 focus:border-violet-500 focus:ring-2 focus:ring-violet-500/20 outline-none text-[15px] placeholder:text-gray-400 transition-all"
+              autoFocus
+            />
+            {isLoading && (
+              <Loader2 className="absolute right-4 top-1/2 -translate-y-1/2 h-5 w-5 text-violet-500 animate-spin" />
+            )}
+          </div>
+
+          {/* Type Filters */}
+          <div className="flex items-center gap-2 mt-3">
+            {types.map((type) => (
+              <button
+                key={type.value || 'all'}
+                onClick={() => setSelectedType(type.value)}
+                className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all ${
+                  selectedType === type.value
+                    ? 'bg-violet-500 text-white'
+                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                }`}
+              >
+                {type.label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Results */}
+        <div className="flex-1 overflow-y-auto p-6">
+          {/* Empty State - No Search */}
+          {!hasSearched && !isLoading && (
+            <div className="text-center py-16">
+              <div className="w-16 h-16 rounded-2xl bg-gray-100 flex items-center justify-center mx-auto mb-4">
+                <Search className="h-8 w-8 text-gray-300" />
+              </div>
+              <p className="text-gray-900 font-medium mb-1">Search for prompts</p>
+              <p className="text-sm text-gray-500">
+                Try &quot;image generation&quot;, &quot;coding&quot;, or &quot;writing&quot;
+              </p>
+            </div>
+          )}
+
+          {/* Loading State */}
+          {isLoading && results.length === 0 && (
+            <div className="text-center py-16">
+              <Loader2 className="h-8 w-8 text-violet-500 animate-spin mx-auto mb-4" />
+              <p className="text-gray-500">Searching prompts.chat...</p>
+            </div>
+          )}
+
+          {/* Error State */}
+          {error && (
+            <div className="text-center py-16">
+              <div className="w-16 h-16 rounded-2xl bg-red-50 flex items-center justify-center mx-auto mb-4">
+                <X className="h-8 w-8 text-red-400" />
+              </div>
+              <p className="text-gray-900 font-medium mb-1">Something went wrong</p>
+              <p className="text-sm text-gray-500">{error}</p>
+            </div>
+          )}
+
+          {/* No Results */}
+          {hasSearched && !isLoading && results.length === 0 && !error && (
+            <div className="text-center py-16">
+              <div className="w-16 h-16 rounded-2xl bg-gray-100 flex items-center justify-center mx-auto mb-4">
+                <FileJson className="h-8 w-8 text-gray-300" />
+              </div>
+              <p className="text-gray-900 font-medium mb-1">No prompts found</p>
+              <p className="text-sm text-gray-500">Try a different search term</p>
+            </div>
+          )}
+
+          {/* Results Grid */}
+          {results.length > 0 && (
+            <div className="grid gap-4">
+              {results.map((prompt) => {
+                const TypeIcon = typeIcons[prompt.type] || FileText;
+                const isImported = importedIds.has(prompt.id);
+
+                return (
+                  <div
+                    key={prompt.id}
+                    className="bg-white rounded-2xl border border-gray-100 p-5 hover:border-violet-200 hover:shadow-lg hover:shadow-violet-500/5 transition-all group"
+                  >
+                    {/* Header Row */}
+                    <div className="flex items-start justify-between gap-4 mb-3">
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-1">
+                          <div className={`w-7 h-7 rounded-lg ${typeColors[prompt.type]} flex items-center justify-center`}>
+                            <TypeIcon className="h-4 w-4" />
+                          </div>
+                          <h3 className="font-semibold text-gray-900 truncate">{prompt.title}</h3>
+                        </div>
+                        {prompt.description && (
+                          <p className="text-sm text-gray-500 line-clamp-2">{prompt.description}</p>
+                        )}
+                      </div>
+
+                      {/* Import Button */}
+                      <button
+                        onClick={() => handleImport(prompt)}
+                        disabled={isImported}
+                        className={`shrink-0 flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all ${
+                          isImported
+                            ? 'bg-green-100 text-green-700'
+                            : 'bg-violet-500 hover:bg-violet-600 text-white shadow-lg shadow-violet-500/25 hover:shadow-violet-500/40'
+                        }`}
+                      >
+                        {isImported ? (
+                          <>
+                            <Check className="h-4 w-4" />
+                            Imported
+                          </>
+                        ) : (
+                          <>
+                            <Download className="h-4 w-4" />
+                            Import
+                          </>
+                        )}
+                      </button>
+                    </div>
+
+                    {/* Meta Row */}
+                    <div className="flex items-center gap-4 text-xs text-gray-400">
+                      <span className="flex items-center gap-1">
+                        <User className="h-3 w-3" />
+                        {prompt.author}
+                      </span>
+                      <span className="flex items-center gap-1">
+                        <Tag className="h-3 w-3" />
+                        {prompt.category}
+                      </span>
+                      <span className="flex items-center gap-1">
+                        <Calendar className="h-3 w-3" />
+                        {new Date(prompt.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                      </span>
+                    </div>
+
+                    {/* Tags */}
+                    {prompt.tags && prompt.tags.length > 0 && (
+                      <div className="flex flex-wrap gap-1.5 mt-3">
+                        {prompt.tags.slice(0, 4).map((tag) => (
+                          <span
+                            key={tag}
+                            className="px-2 py-0.5 bg-gray-100 text-gray-600 rounded-md text-xs"
+                          >
+                            {tag}
+                          </span>
+                        ))}
+                        {prompt.tags.length > 4 && (
+                          <span className="px-2 py-0.5 text-gray-400 text-xs">
+                            +{prompt.tags.length - 4} more
+                          </span>
+                        )}
+                      </div>
+                    )}
+
+                    {/* Content Preview */}
+                    <div className="mt-3 pt-3 border-t border-gray-50">
+                      <pre className="text-xs text-gray-500 font-mono bg-gray-50 rounded-lg p-3 overflow-hidden max-h-24 line-clamp-4">
+                        {prompt.content.slice(0, 300)}
+                        {prompt.content.length > 300 && '...'}
+                      </pre>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+
+        {/* Footer */}
+        <div className="px-6 py-4 border-t border-gray-100 bg-gray-50/50">
+          <div className="flex items-center justify-between">
+            <a
+              href="https://prompts.chat"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-2 text-sm text-gray-500 hover:text-violet-600 transition-colors"
+            >
+              <ExternalLink className="h-4 w-4" />
+              Browse more on prompts.chat
+            </a>
+            {results.length > 0 && (
+              <span className="text-sm text-gray-400">
+                {results.length} prompt{results.length !== 1 ? 's' : ''} found
+              </span>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}

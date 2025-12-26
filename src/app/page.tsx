@@ -8,6 +8,7 @@ import { PromptTree } from '@/components/editor/PromptTree';
 import { AIPanel } from '@/components/ai/AIPanel';
 import { ImageExpanderPanel } from '@/components/image/ImageExpanderPanel';
 import { ReverseEngineerPanel } from '@/components/image/ReverseEngineerPanel';
+import { BrowsePromptsPanel } from '@/components/browse/BrowsePromptsPanel';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -46,6 +47,8 @@ import {
   Shield,
   ImageIcon,
   ExternalLink,
+  Globe,
+  Search,
 } from 'lucide-react';
 
 // Logo component
@@ -1792,6 +1795,7 @@ function EditorApp() {
   const [view, setView] = useState<View>(currentPromptId ? 'editor' : 'dashboard');
   const [showCreate, setShowCreate] = useState(false);
   const [showReverseEngineer, setShowReverseEngineer] = useState(false);
+  const [showBrowsePrompts, setShowBrowsePrompts] = useState(false);
   const [newName, setNewName] = useState('');
   const [importJson, setImportJson] = useState('');
   const [showSettings, setShowSettings] = useState(false);
@@ -2002,6 +2006,13 @@ function EditorApp() {
                   New Prompt
                 </Button>
                 <Button
+                  onClick={() => setShowBrowsePrompts(true)}
+                  className="bg-gradient-to-r from-cyan-500 to-blue-500 text-white hover:from-cyan-600 hover:to-blue-600 shadow-lg"
+                >
+                  <Globe className="h-4 w-4 mr-2" />
+                  Browse Prompts
+                </Button>
+                <Button
                   onClick={() => setShowReverseEngineer(true)}
                   className="bg-gradient-to-r from-purple-500 to-pink-500 text-white hover:from-purple-600 hover:to-pink-600 shadow-lg"
                 >
@@ -2192,13 +2203,18 @@ function EditorApp() {
         <ReverseEngineerPanel onClose={() => setShowReverseEngineer(false)} />
       )}
 
+      {/* Browse Prompts Modal */}
+      {showBrowsePrompts && (
+        <BrowsePromptsPanel onClose={() => setShowBrowsePrompts(false)} />
+      )}
+
       {/* Settings Modal */}
       {showSettings && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-black/20 backdrop-blur-sm" onClick={() => setShowSettings(false)} />
           <Card className="relative w-full max-w-sm bg-white rounded-3xl shadow-2xl p-6">
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl font-bold text-neutral-800">Ayarlar</h2>
+              <h2 className="text-xl font-bold text-neutral-800">Settings</h2>
               <button
                 onClick={() => setShowSettings(false)}
                 className="h-8 w-8 rounded-full flex items-center justify-center text-neutral-400 hover:text-neutral-600 hover:bg-neutral-100 transition-colors"
