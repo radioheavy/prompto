@@ -842,6 +842,10 @@ function OnboardingScreen({ onComplete }: { onComplete: () => void }) {
       const data = await response.json();
       if (data.success) {
         setTestResult('success');
+        // Auto-advance after celebration
+        setTimeout(() => {
+          setStep('image-gen-select');
+        }, 1500);
       } else {
         setTestResult('error');
         setTestError(data.error || 'Invalid API key');
@@ -894,6 +898,7 @@ function OnboardingScreen({ onComplete }: { onComplete: () => void }) {
     setImageGenTestResult(null);
 
     try {
+      let success = false;
       // fal.ai ve wiro.ai icin basit test
       if (selectedImageGen === 'fal') {
         const response = await fetch('https://fal.run/fal-ai/flux/schnell', {
@@ -905,11 +910,19 @@ function OnboardingScreen({ onComplete }: { onComplete: () => void }) {
           body: JSON.stringify({ prompt: 'test', num_inference_steps: 1 }),
         });
         // 401/403 = invalid key, diger hatalar = gecerli key
-        setImageGenTestResult(response.status === 401 || response.status === 403 ? 'error' : 'success');
+        success = response.status !== 401 && response.status !== 403;
+        setImageGenTestResult(success ? 'success' : 'error');
       } else if (selectedImageGen === 'wiro') {
         // Wiro.ai test - basit bir endpoint kontrolu
-        // Gercek implementasyonda wiro.ai API'sine gore guncellenecek
-        setImageGenTestResult('success'); // Simdilik direkt kabul et
+        success = true;
+        setImageGenTestResult('success');
+      }
+
+      // Auto-advance after success
+      if (success) {
+        setTimeout(() => {
+          handleComplete(selectedProvider, apiKey);
+        }, 1500);
       }
     } catch {
       setImageGenTestResult('error');
@@ -1094,40 +1107,54 @@ function OnboardingScreen({ onComplete }: { onComplete: () => void }) {
               {testResult === 'error' && testError && (
                 <p className="text-[13px] text-red-500 mt-2">{testError}</p>
               )}
-              {testResult === 'success' && (
-                <p className="text-[13px] text-green-600 mt-2">Connection successful</p>
-              )}
             </div>
 
-            {/* Action Button - Apple Style */}
+            {/* Action Button - Premium Animated */}
             <button
               onClick={() => {
-                if (testResult === 'success') {
-                  setStep('image-gen-select');
-                } else {
+                if (testResult !== 'success') {
                   testApiKey();
                 }
               }}
-              disabled={!apiKey.trim() || isTesting}
-              className={`w-full h-[50px] text-white text-[17px] font-medium rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 ${
+              disabled={!apiKey.trim() || isTesting || testResult === 'success'}
+              className={`w-full h-[56px] text-white text-[17px] font-semibold rounded-2xl flex items-center justify-center gap-3 transition-all duration-500 ease-out disabled:cursor-not-allowed ${
                 testResult === 'success'
-                  ? 'bg-green-500 hover:bg-green-600 active:bg-green-700'
-                  : 'bg-blue-500 hover:bg-blue-600 active:bg-blue-700'
+                  ? 'bg-gradient-to-r from-green-500 to-emerald-500 shadow-lg shadow-green-500/30 scale-[1.02]'
+                  : testResult === 'error'
+                  ? 'bg-red-500 hover:bg-red-600 active:bg-red-700'
+                  : isTesting
+                  ? 'bg-blue-400'
+                  : 'bg-blue-500 hover:bg-blue-600 active:bg-blue-700 disabled:opacity-50'
               }`}
             >
               {isTesting ? (
                 <>
-                  <Loader2 className="h-5 w-5 animate-spin" />
-                  Testing...
+                  <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  <span>Connecting...</span>
                 </>
               ) : testResult === 'success' ? (
-                'Continue'
+                <>
+                  <div className="w-6 h-6 bg-white rounded-full flex items-center justify-center animate-[scaleIn_0.3s_ease-out]">
+                    <Check className="h-4 w-4 text-green-500" strokeWidth={3} />
+                  </div>
+                  <span>Connected to {providerInfo[selectedProvider].name}</span>
+                </>
               ) : testResult === 'error' ? (
-                'Try Again'
+                <>
+                  <RotateCcw className="h-5 w-5" />
+                  <span>Try Again</span>
+                </>
               ) : (
                 'Test Connection'
               )}
             </button>
+
+            {/* Progress indicator for success */}
+            {testResult === 'success' && (
+              <div className="mt-4 flex items-center justify-center gap-2 text-[13px] text-green-600 animate-pulse">
+                <span>Continuing to next step...</span>
+              </div>
+            )}
 
             {/* Security Note */}
             <p className="text-[11px] text-gray-400 mt-4 text-center">
@@ -1249,39 +1276,48 @@ function OnboardingScreen({ onComplete }: { onComplete: () => void }) {
                 </div>
 
                 {/* Status Message */}
-                {imageGenTestResult === 'success' && (
-                  <p className="text-[13px] text-green-600 mt-2">Connection successful</p>
-                )}
                 {imageGenTestResult === 'error' && (
                   <p className="text-[13px] text-red-500 mt-2">Invalid API key</p>
                 )}
               </div>
             )}
 
-            {/* Action Button */}
+            {/* Action Button - Premium Animated */}
             {selectedImageGen !== 'none' ? (
               <button
                 onClick={() => {
-                  if (imageGenTestResult === 'success') {
-                    handleComplete(selectedProvider, apiKey);
-                  } else {
+                  if (imageGenTestResult !== 'success') {
                     testImageGenApiKey();
                   }
                 }}
-                disabled={!imageGenApiKey.trim() || isTestingImageGen}
-                className={`w-full h-[50px] text-white text-[17px] font-medium rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 ${
+                disabled={!imageGenApiKey.trim() || isTestingImageGen || imageGenTestResult === 'success'}
+                className={`w-full h-[56px] text-white text-[17px] font-semibold rounded-2xl flex items-center justify-center gap-3 transition-all duration-500 ease-out disabled:cursor-not-allowed ${
                   imageGenTestResult === 'success'
-                    ? 'bg-green-500 hover:bg-green-600 active:bg-green-700'
-                    : 'bg-blue-500 hover:bg-blue-600 active:bg-blue-700'
+                    ? 'bg-gradient-to-r from-green-500 to-emerald-500 shadow-lg shadow-green-500/30 scale-[1.02]'
+                    : imageGenTestResult === 'error'
+                    ? 'bg-red-500 hover:bg-red-600 active:bg-red-700'
+                    : isTestingImageGen
+                    ? 'bg-blue-400'
+                    : 'bg-blue-500 hover:bg-blue-600 active:bg-blue-700 disabled:opacity-50'
                 }`}
               >
                 {isTestingImageGen ? (
                   <>
-                    <Loader2 className="h-5 w-5 animate-spin" />
-                    Testing...
+                    <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    <span>Connecting...</span>
                   </>
                 ) : imageGenTestResult === 'success' ? (
-                  'Continue'
+                  <>
+                    <div className="w-6 h-6 bg-white rounded-full flex items-center justify-center animate-[scaleIn_0.3s_ease-out]">
+                      <Check className="h-4 w-4 text-green-500" strokeWidth={3} />
+                    </div>
+                    <span>Connected to {imageGenInfo[selectedImageGen].name}</span>
+                  </>
+                ) : imageGenTestResult === 'error' ? (
+                  <>
+                    <RotateCcw className="h-5 w-5" />
+                    <span>Try Again</span>
+                  </>
                 ) : (
                   'Test Connection'
                 )}
@@ -1291,14 +1327,21 @@ function OnboardingScreen({ onComplete }: { onComplete: () => void }) {
                 onClick={() => {
                   handleComplete(selectedProvider, apiKey);
                 }}
-                className="w-full h-[50px] bg-blue-500 hover:bg-blue-600 active:bg-blue-700 text-white text-[17px] font-medium rounded-xl transition-colors"
+                className="w-full h-[56px] bg-gray-900 hover:bg-gray-800 active:bg-black text-white text-[17px] font-semibold rounded-2xl transition-colors"
               >
                 Skip for now
               </button>
             )}
 
+            {/* Progress indicator for success */}
+            {imageGenTestResult === 'success' && (
+              <div className="mt-4 flex items-center justify-center gap-2 text-[13px] text-green-600 animate-pulse">
+                <span>Finishing setup...</span>
+              </div>
+            )}
+
             {/* Skip Link - only when provider selected */}
-            {selectedImageGen !== 'none' && (
+            {selectedImageGen !== 'none' && imageGenTestResult !== 'success' && (
               <button
                 onClick={() => {
                   setSelectedImageGen('none');
