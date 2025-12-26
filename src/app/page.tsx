@@ -785,7 +785,7 @@ function EditorView({ prompt, onBack }: { prompt: Prompt; onBack: () => void }) 
 // ============================================
 // ONBOARDING SCREEN (İlk açılış)
 // ============================================
-type OnboardingStep = 'welcome' | 'api-setup' | 'image-gen-select' | 'image-gen-setup' | 'ready';
+type OnboardingStep = 'welcome' | 'api-setup' | 'image-gen-select' | 'ready';
 type AIProvider = 'openai' | 'anthropic' | 'google';
 type ImageGenProvider = 'fal' | 'wiro' | 'none';
 
@@ -844,11 +844,11 @@ function OnboardingScreen({ onComplete }: { onComplete: () => void }) {
         setTestResult('success');
       } else {
         setTestResult('error');
-        setTestError(data.error || 'API key gecersiz');
+        setTestError(data.error || 'Invalid API key');
       }
     } catch {
       setTestResult('error');
-      setTestError('Baglanti kurulamadi');
+      setTestError('Connection failed');
     } finally {
       setIsTesting(false);
     }
@@ -877,13 +877,13 @@ function OnboardingScreen({ onComplete }: { onComplete: () => void }) {
       name: 'fal.ai',
       placeholder: 'fal_...',
       link: 'https://fal.ai/dashboard/keys',
-      description: 'Flux, SDXL, ve daha fazla model'
+      description: 'Flux, SDXL, and more models'
     },
     'wiro': {
       name: 'Wiro.ai',
       placeholder: 'wiro_...',
       link: 'https://wiro.ai/dashboard',
-      description: 'Nano Banana Pro ve diger modeller'
+      description: 'Nano Banana Pro and other models'
     },
   };
 
@@ -919,106 +919,102 @@ function OnboardingScreen({ onComplete }: { onComplete: () => void }) {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background to-muted flex items-center justify-center p-4">
-      <Card className="max-w-4xl w-full p-8">
-        {/* Welcome Step - Clean Design */}
+    <div className="min-h-screen bg-[#f5f5f7] flex items-center justify-center p-4">
+      <div className="max-w-[380px] w-full">
+        {/* Welcome Step - Premium Apple Design */}
         {step === 'welcome' && (
-          <div className="max-w-md mx-auto">
-            {/* Hero Card */}
-            <div className="bg-gradient-to-br from-violet-500 via-purple-500 to-indigo-600 rounded-2xl p-8 mb-8 text-white relative overflow-hidden">
-              {/* Decorative elements */}
-              <div className="absolute top-4 right-4 w-20 h-20 bg-white/10 rounded-2xl rotate-12" />
-              <div className="absolute -bottom-4 -right-4 w-16 h-16 bg-white/5 rounded-full" />
-
-              <div className="relative">
-                <div className="flex items-center gap-3 mb-4">
-                  <Logo size={40} />
-                  <span className="text-xl font-bold">Avalon</span>
-                </div>
-                <h1 className="text-2xl font-bold mb-2">Merhaba!</h1>
-                <p className="text-white/80 text-sm">
-                  JSON prompt&apos;larini gorsel olarak duzenle, AI ile aninda optimize et.
-                </p>
+          <div className="text-center py-8">
+            {/* App Icon */}
+            <div className="mb-8">
+              <div className="w-[100px] h-[100px] mx-auto rounded-[24px] bg-white shadow-xl flex items-center justify-center">
+                <Logo size={64} />
               </div>
             </div>
 
-            {/* Steps Preview */}
-            <div className="space-y-3 mb-8">
-              <div className="flex items-center gap-3 p-3 rounded-xl bg-violet-50 border border-violet-100">
-                <div className="w-8 h-8 rounded-full bg-violet-500 text-white flex items-center justify-center text-sm font-bold">1</div>
-                <div>
-                  <p className="font-medium text-sm">AI Servisi Sec</p>
-                  <p className="text-xs text-muted-foreground">OpenAI, Anthropic veya Google</p>
-                </div>
-              </div>
+            {/* Title */}
+            <h1 className="text-[34px] font-bold text-gray-900 tracking-tight mb-3">
+              Welcome to Avalon
+            </h1>
+            <p className="text-[17px] text-gray-500 mb-10 leading-relaxed">
+              Edit, generate, and optimize<br />your prompts with AI.
+            </p>
 
-              <div className="flex items-center gap-3 p-3 rounded-xl bg-muted/50 border border-transparent">
-                <div className="w-8 h-8 rounded-full bg-neutral-200 text-neutral-500 flex items-center justify-center text-sm font-bold">2</div>
-                <div>
-                  <p className="font-medium text-sm text-muted-foreground">API Key Gir</p>
-                  <p className="text-xs text-muted-foreground">Guvenli, sadece oturumda saklanir</p>
+            {/* Features */}
+            <div className="flex items-center justify-center gap-8 mb-10">
+              <div className="text-center">
+                <div className="w-11 h-11 rounded-xl bg-blue-500 flex items-center justify-center mx-auto mb-2">
+                  <Sparkles className="h-5 w-5 text-white" />
                 </div>
+                <p className="text-[11px] text-gray-500 font-medium">Edit</p>
               </div>
-
-              <div className="flex items-center gap-3 p-3 rounded-xl bg-muted/50 border border-transparent">
-                <div className="w-8 h-8 rounded-full bg-neutral-200 text-neutral-500 flex items-center justify-center text-sm font-bold">3</div>
-                <div>
-                  <p className="font-medium text-sm text-muted-foreground">Gorsel Uretim (Opsiyonel)</p>
-                  <p className="text-xs text-muted-foreground">fal.ai veya Wiro.ai</p>
+              <div className="text-center">
+                <div className="w-11 h-11 rounded-xl bg-purple-500 flex items-center justify-center mx-auto mb-2">
+                  <ImageIcon className="h-5 w-5 text-white" />
                 </div>
+                <p className="text-[11px] text-gray-500 font-medium">Generate</p>
+              </div>
+              <div className="text-center">
+                <div className="w-11 h-11 rounded-xl bg-pink-500 flex items-center justify-center mx-auto mb-2">
+                  <Wand2 className="h-5 w-5 text-white" />
+                </div>
+                <p className="text-[11px] text-gray-500 font-medium">Reverse</p>
               </div>
             </div>
 
             {/* Action Button */}
-            <Button
-              size="lg"
-              className="w-full gap-2 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500"
+            <button
               onClick={() => setStep('api-setup')}
+              className="w-full h-[54px] bg-blue-500 hover:bg-blue-600 active:bg-blue-700 text-white text-[17px] font-semibold rounded-[14px] transition-colors"
             >
-              <Sparkles className="h-5 w-5" />
-              Baslayalim
-            </Button>
+              Get Started
+            </button>
 
-            {/* Privacy note */}
-            <p className="text-xs text-center text-muted-foreground mt-4 flex items-center justify-center gap-1.5">
-              <Shield className="h-3.5 w-3.5" />
-              API key&apos;in sadece tarayici oturumunda saklanir
+            {/* Privacy */}
+            <p className="text-[13px] text-gray-400 mt-5">
+              Your data stays on your device
             </p>
           </div>
         )}
 
-        {/* API Setup Step */}
+        {/* API Setup Step - Apple Style */}
         {step === 'api-setup' && (
-          <div className="max-w-md mx-auto">
-            {/* Progress + Back */}
-            <div className="flex items-center justify-between mb-4">
-              <button
-                onClick={() => setStep('welcome')}
-                className="p-1.5 hover:bg-muted rounded-lg transition-colors"
-              >
-                <ChevronLeft className="h-5 w-5" />
-              </button>
-              <div className="flex items-center gap-1.5">
-                <div className="w-6 h-1 rounded-full bg-violet-500" />
-                <div className="w-6 h-1 rounded-full bg-neutral-200" />
-                <div className="w-6 h-1 rounded-full bg-neutral-200" />
-              </div>
-              <div className="w-8" />
-            </div>
+          <div>
+            {/* Back Button */}
+            <button
+              onClick={() => setStep('welcome')}
+              className="flex items-center gap-1 text-blue-500 hover:text-blue-600 text-[17px] mb-6 -ml-1"
+            >
+              <ChevronLeft className="h-5 w-5" />
+              Back
+            </button>
 
-            {/* Header - Compact */}
-            <div className="text-center mb-5">
-              <h2 className="text-lg font-bold mb-0.5">AI Servisi Sec</h2>
-              <p className="text-sm text-muted-foreground">Prompt&apos;larini optimize etmek icin</p>
-            </div>
+            {/* Title */}
+            <h1 className="text-[28px] font-semibold text-gray-900 tracking-tight mb-2 text-center">
+              Choose AI Provider
+            </h1>
+            <p className="text-[15px] text-gray-500 mb-6 text-center">
+              Select your preferred AI service
+            </p>
 
-            {/* Provider Chips - Horizontal */}
-            <div className="grid grid-cols-3 gap-2 mb-5">
+            {/* Provider Cards - Apple Style */}
+            <div className="bg-white rounded-2xl shadow-sm border border-gray-200/60 divide-y divide-gray-100 mb-6">
               {(['anthropic', 'openai', 'google'] as AIProvider[]).map((provider) => {
-                const icons: Record<AIProvider, React.ReactNode> = {
-                  anthropic: <Sparkles className="h-4 w-4" />,
-                  openai: <Zap className="h-4 w-4" />,
-                  google: <MessageSquare className="h-4 w-4" />,
+                const config: Record<AIProvider, { icon: React.ReactNode; color: string; desc: string }> = {
+                  anthropic: {
+                    icon: <Sparkles className="h-5 w-5 text-white" />,
+                    color: 'bg-orange-500',
+                    desc: 'Claude Sonnet 4, Opus'
+                  },
+                  openai: {
+                    icon: <Zap className="h-5 w-5 text-white" />,
+                    color: 'bg-emerald-500',
+                    desc: 'GPT-4o, GPT-4 Turbo'
+                  },
+                  google: {
+                    icon: <MessageSquare className="h-5 w-5 text-white" />,
+                    color: 'bg-blue-500',
+                    desc: 'Gemini Pro, Flash'
+                  },
                 };
 
                 return (
@@ -1030,34 +1026,36 @@ function OnboardingScreen({ onComplete }: { onComplete: () => void }) {
                       setTestResult(null);
                       setTestError(null);
                     }}
-                    className={`p-3 rounded-xl border-2 transition-all text-center ${
-                      selectedProvider === provider
-                        ? 'border-violet-500 bg-violet-50'
-                        : 'border-neutral-200 hover:border-violet-300'
-                    }`}
+                    className="w-full flex items-center gap-4 p-4 text-left hover:bg-gray-50 transition-colors"
                   >
-                    <div className={`w-8 h-8 rounded-lg mx-auto mb-1.5 flex items-center justify-center ${
-                      selectedProvider === provider ? 'bg-violet-500 text-white' : 'bg-neutral-100 text-neutral-600'
-                    }`}>
-                      {icons[provider]}
+                    <div className={`w-10 h-10 rounded-full ${config[provider].color} flex items-center justify-center shrink-0`}>
+                      {config[provider].icon}
                     </div>
-                    <span className="text-xs font-medium block">{providerInfo[provider].name}</span>
+                    <div className="flex-1">
+                      <p className="text-[15px] font-medium text-gray-900">{providerInfo[provider].name}</p>
+                      <p className="text-[13px] text-gray-500">{config[provider].desc}</p>
+                    </div>
+                    {selectedProvider === provider ? (
+                      <Check className="h-5 w-5 text-blue-500" />
+                    ) : (
+                      <div className="w-5 h-5 rounded-full border-2 border-gray-300" />
+                    )}
                   </button>
                 );
               })}
             </div>
 
-            {/* API Key Input - Compact */}
-            <div className="mb-5">
-              <div className="flex items-center justify-between mb-1.5">
-                <label className="text-sm font-medium">API Key</label>
+            {/* API Key Input - Apple Style */}
+            <div className="bg-white rounded-2xl shadow-sm border border-gray-200/60 p-4 mb-6">
+              <div className="flex items-center justify-between mb-2">
+                <label className="text-[13px] font-medium text-gray-500 uppercase tracking-wide">API Key</label>
                 <a
                   href={providerInfo[selectedProvider].link}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-xs text-violet-600 hover:underline flex items-center gap-1"
+                  className="text-[13px] text-blue-500 hover:text-blue-600"
                 >
-                  Key al <ExternalLink className="h-3 w-3" />
+                  Get Key
                 </a>
               </div>
               <div className="relative">
@@ -1070,50 +1068,37 @@ function OnboardingScreen({ onComplete }: { onComplete: () => void }) {
                     setTestError(null);
                   }}
                   placeholder={providerInfo[selectedProvider].placeholder}
-                  className={`w-full px-3 py-2.5 rounded-xl border-2 bg-background focus:outline-none transition-colors text-sm ${
+                  className={`w-full px-0 py-2 bg-transparent border-0 border-b-2 focus:outline-none transition-colors text-[17px] text-gray-900 placeholder:text-gray-400 ${
                     testResult === 'error'
-                      ? 'border-red-300 focus:border-red-500'
+                      ? 'border-red-400'
                       : testResult === 'success'
-                      ? 'border-emerald-300 focus:border-emerald-500'
-                      : 'border-neutral-200 focus:border-violet-500'
+                      ? 'border-green-400'
+                      : 'border-gray-200 focus:border-blue-500'
                   }`}
                 />
                 {testResult === 'success' && (
-                  <div className="absolute right-3 top-1/2 -translate-y-1/2">
-                    <Check className="h-4 w-4 text-emerald-500" />
+                  <div className="absolute right-0 top-1/2 -translate-y-1/2">
+                    <Check className="h-5 w-5 text-green-500" />
                   </div>
                 )}
                 {testResult === 'error' && (
-                  <div className="absolute right-3 top-1/2 -translate-y-1/2">
-                    <X className="h-4 w-4 text-red-500" />
+                  <div className="absolute right-0 top-1/2 -translate-y-1/2">
+                    <X className="h-5 w-5 text-red-500" />
                   </div>
                 )}
               </div>
 
-              {/* Error Message - Apple Style */}
+              {/* Status Message */}
               {testResult === 'error' && testError && (
-                <p className="text-xs text-red-500 mt-1.5 flex items-center gap-1">
-                  <span className="w-1 h-1 rounded-full bg-red-500" />
-                  {testError}
-                </p>
+                <p className="text-[13px] text-red-500 mt-2">{testError}</p>
               )}
-
-              {/* Success Message */}
               {testResult === 'success' && (
-                <p className="text-xs text-emerald-600 mt-1.5 flex items-center gap-1">
-                  <span className="w-1 h-1 rounded-full bg-emerald-500" />
-                  Baglanti basarili
-                </p>
+                <p className="text-[13px] text-green-600 mt-2">Connection successful</p>
               )}
             </div>
 
-            {/* Action Button */}
-            <Button
-              className={`w-full gap-2 ${
-                testResult === 'success'
-                  ? 'bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500'
-                  : 'bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500'
-              }`}
+            {/* Action Button - Apple Style */}
+            <button
               onClick={() => {
                 if (testResult === 'success') {
                   setStep('image-gen-select');
@@ -1122,288 +1107,269 @@ function OnboardingScreen({ onComplete }: { onComplete: () => void }) {
                 }
               }}
               disabled={!apiKey.trim() || isTesting}
+              className={`w-full h-[50px] text-white text-[17px] font-medium rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 ${
+                testResult === 'success'
+                  ? 'bg-green-500 hover:bg-green-600 active:bg-green-700'
+                  : 'bg-blue-500 hover:bg-blue-600 active:bg-blue-700'
+              }`}
             >
               {isTesting ? (
                 <>
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                  Test Ediliyor...
+                  <Loader2 className="h-5 w-5 animate-spin" />
+                  Testing...
                 </>
               ) : testResult === 'success' ? (
-                <>
-                  Devam Et
-                  <ChevronRight className="h-4 w-4" />
-                </>
+                'Continue'
               ) : testResult === 'error' ? (
-                <>
-                  <RotateCcw className="h-4 w-4" />
-                  Tekrar Dene
-                </>
+                'Try Again'
               ) : (
-                'Baglantıyı Test Et'
+                'Test Connection'
               )}
-            </Button>
-
-            {/* Security Note - Compact */}
-            {!testResult && (
-              <p className="text-xs text-center text-muted-foreground mt-3 flex items-center justify-center gap-1">
-                <Shield className="h-3 w-3" />
-                Sadece bu oturumda saklanir
-              </p>
-            )}
-          </div>
-        )}
-
-        {/* Image Gen Select Step - Gorsel uretim servisi secimi */}
-        {step === 'image-gen-select' && (
-          <div>
-            <div className="flex items-center gap-2 mb-6">
-              <button
-                onClick={() => setStep('api-setup')}
-                className="p-1 hover:bg-muted rounded transition-colors"
-              >
-                <ChevronLeft className="h-5 w-5" />
-              </button>
-              <h2 className="text-xl font-bold">Gorsel Uretim</h2>
-              <span className="text-sm text-muted-foreground">(Opsiyonel)</span>
-            </div>
-
-            <p className="text-sm text-muted-foreground mb-6">
-              Prompt&apos;larinizi gorsellestirmek icin bir servis secin veya bu adimi atlayin.
-            </p>
-
-            <div className="space-y-3">
-              {/* fal.ai Option */}
-              <button
-                onClick={() => setSelectedImageGen('fal')}
-                className={`w-full p-4 rounded-lg border-2 transition-colors text-left ${
-                  selectedImageGen === 'fal'
-                    ? 'border-pink-500 bg-pink-50'
-                    : 'border-pink-200 bg-pink-50/50 hover:bg-pink-50'
-                }`}
-              >
-                <div className="flex items-center gap-3 mb-2">
-                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-pink-400 to-orange-400 flex items-center justify-center">
-                    <span className="text-white font-bold text-sm">fal</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <h3 className="font-semibold">fal.ai</h3>
-                    {selectedImageGen === 'fal' && <Check className="h-4 w-4 text-pink-600" />}
-                  </div>
-                </div>
-                <p className="text-xs text-pink-600 mb-1">Flux 2 Pro, Nano Banana Pro, SDXL</p>
-                <p className="text-sm text-muted-foreground">
-                  Hizli ve kaliteli gorsel uretim.
-                </p>
-              </button>
-
-              {/* wiro.ai Option */}
-              <button
-                onClick={() => setSelectedImageGen('wiro')}
-                className={`w-full p-4 rounded-lg border-2 transition-colors text-left ${
-                  selectedImageGen === 'wiro'
-                    ? 'border-purple-500 bg-purple-50'
-                    : 'border-purple-200 bg-purple-50/50 hover:bg-purple-50'
-                }`}
-              >
-                <div className="flex items-center gap-3 mb-2">
-                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center">
-                    <span className="text-white font-bold text-sm">W</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <h3 className="font-semibold">Wiro.ai</h3>
-                    {selectedImageGen === 'wiro' && <Check className="h-4 w-4 text-purple-600" />}
-                  </div>
-                </div>
-                <p className="text-xs text-purple-600 mb-1">Nano Banana Pro</p>
-                <p className="text-sm text-muted-foreground">
-                  Nano Banana Pro ve diger modeller.
-                </p>
-              </button>
-            </div>
-
-            {/* Actions */}
-            <div className="mt-6 space-y-3">
-              {selectedImageGen !== 'none' && (
-                <Button
-                  className="w-full"
-                  onClick={() => setStep('image-gen-setup')}
-                >
-                  {selectedImageGen === 'fal' ? 'fal.ai' : 'Wiro.ai'} Ayarla
-                  <ChevronRight className="h-4 w-4 ml-1" />
-                </Button>
-              )}
-
-              <Button
-                variant={selectedImageGen !== 'none' ? 'outline' : 'default'}
-                className="w-full"
-                onClick={() => {
-                  setSelectedImageGen('none');
-                  handleComplete(selectedProvider, apiKey);
-                }}
-              >
-                {selectedImageGen !== 'none' ? 'Atla ve Basla' : 'Simdilik Atla ve Basla'}
-              </Button>
-            </div>
-          </div>
-        )}
-
-        {/* Image Gen Setup Step */}
-        {step === 'image-gen-setup' && selectedImageGen !== 'none' && (
-          <div>
-            <div className="flex items-center gap-2 mb-6">
-              <button
-                onClick={() => setStep('image-gen-select')}
-                className="p-1 hover:bg-muted rounded transition-colors"
-              >
-                <ChevronLeft className="h-5 w-5" />
-              </button>
-              <h2 className="text-xl font-bold">
-                {imageGenInfo[selectedImageGen].name} Baglantisi
-              </h2>
-            </div>
-
-            {/* Provider Info */}
-            <div className="flex items-center gap-3 p-4 rounded-lg bg-pink-50 border border-pink-200 mb-6">
-              <div className={`w-12 h-12 rounded-full flex items-center justify-center ${
-                selectedImageGen === 'fal'
-                  ? 'bg-gradient-to-br from-pink-400 to-orange-400'
-                  : 'bg-gradient-to-br from-purple-500 to-blue-500'
-              }`}>
-                <span className="text-white font-bold">
-                  {selectedImageGen === 'fal' ? 'fal' : 'W'}
-                </span>
-              </div>
-              <div>
-                <h3 className="font-semibold">{imageGenInfo[selectedImageGen].name}</h3>
-                <p className="text-sm text-muted-foreground">{imageGenInfo[selectedImageGen].description}</p>
-              </div>
-            </div>
-
-            {/* API Key Input */}
-            <div className="mb-4">
-              <label className="text-sm font-medium mb-2 block">API Key</label>
-              <div className="relative">
-                <input
-                  type="password"
-                  value={imageGenApiKey}
-                  onChange={(e) => {
-                    setImageGenApiKey(e.target.value);
-                    setImageGenTestResult(null);
-                  }}
-                  placeholder={imageGenInfo[selectedImageGen].placeholder}
-                  className="w-full px-3 py-2 rounded-lg border bg-background focus:outline-none focus:ring-2 focus:ring-pink-500/50"
-                />
-              </div>
-              <a
-                href={imageGenInfo[selectedImageGen].link}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-xs text-pink-600 hover:underline mt-1 inline-block"
-              >
-                API key al →
-              </a>
-            </div>
-
-            {/* Test Result */}
-            {imageGenTestResult && (
-              <div className={`p-3 rounded-lg mb-4 ${
-                imageGenTestResult === 'success'
-                  ? 'bg-green-500/10 text-green-600'
-                  : 'bg-red-500/10 text-red-600'
-              }`}>
-                <p className="text-sm font-medium">
-                  {imageGenTestResult === 'success' ? '✓ API key gecerli!' : '✗ API key gecersiz'}
-                </p>
-              </div>
-            )}
+            </button>
 
             {/* Security Note */}
-            <div className="bg-muted/50 rounded-lg p-3 mb-6">
-              <p className="text-xs text-muted-foreground">
-                🔒 API key&apos;in sadece bu oturumda tutulur, hicbir yere kaydedilmez.
-              </p>
+            <p className="text-[11px] text-gray-400 mt-4 text-center">
+              Your API key is only stored in this session
+            </p>
+          </div>
+        )}
+
+        {/* Image Gen Select Step - Apple Style (Combined with Setup) */}
+        {step === 'image-gen-select' && (
+          <div>
+            {/* Back Button */}
+            <button
+              onClick={() => setStep('api-setup')}
+              className="flex items-center gap-1 text-blue-500 hover:text-blue-600 text-[17px] mb-6 -ml-1"
+            >
+              <ChevronLeft className="h-5 w-5" />
+              Back
+            </button>
+
+            {/* Title */}
+            <h1 className="text-[28px] font-semibold text-gray-900 tracking-tight mb-2 text-center">
+              Image Generation
+            </h1>
+            <p className="text-[15px] text-gray-500 mb-6 text-center">
+              Optional - you can skip this
+            </p>
+
+            {/* Provider Cards - Apple Style */}
+            <div className="bg-white rounded-2xl shadow-sm border border-gray-200/60 divide-y divide-gray-100 mb-6">
+              {/* fal.ai */}
+              <button
+                onClick={() => {
+                  setSelectedImageGen('fal');
+                  setImageGenApiKey('');
+                  setImageGenTestResult(null);
+                }}
+                className="w-full flex items-center gap-4 p-4 text-left hover:bg-gray-50 transition-colors"
+              >
+                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-pink-500 to-orange-500 flex items-center justify-center shrink-0">
+                  <span className="text-white font-bold text-sm">fal</span>
+                </div>
+                <div className="flex-1">
+                  <p className="text-[15px] font-medium text-gray-900">fal.ai</p>
+                  <p className="text-[13px] text-gray-500">Flux, SDXL modelleri</p>
+                </div>
+                {selectedImageGen === 'fal' ? (
+                  <Check className="h-5 w-5 text-blue-500" />
+                ) : (
+                  <div className="w-5 h-5 rounded-full border-2 border-gray-300" />
+                )}
+              </button>
+
+              {/* Wiro.ai */}
+              <button
+                onClick={() => {
+                  setSelectedImageGen('wiro');
+                  setImageGenApiKey('');
+                  setImageGenTestResult(null);
+                }}
+                className="w-full flex items-center gap-4 p-4 text-left hover:bg-gray-50 transition-colors"
+              >
+                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-indigo-500 flex items-center justify-center shrink-0">
+                  <span className="text-white font-bold text-sm">W</span>
+                </div>
+                <div className="flex-1">
+                  <p className="text-[15px] font-medium text-gray-900">Wiro.ai</p>
+                  <p className="text-[13px] text-gray-500">Nano Banana Pro</p>
+                </div>
+                {selectedImageGen === 'wiro' ? (
+                  <Check className="h-5 w-5 text-blue-500" />
+                ) : (
+                  <div className="w-5 h-5 rounded-full border-2 border-gray-300" />
+                )}
+              </button>
             </div>
 
-            {/* Actions */}
-            <div className="space-y-3">
-              <Button
-                className="w-full bg-pink-600 hover:bg-pink-700"
-                onClick={testImageGenApiKey}
+            {/* API Key Input - Only show when provider selected */}
+            {selectedImageGen !== 'none' && (
+              <div className="bg-white rounded-2xl shadow-sm border border-gray-200/60 p-4 mb-6">
+                <div className="flex items-center justify-between mb-2">
+                  <label className="text-[13px] font-medium text-gray-500 uppercase tracking-wide">API Key</label>
+                  <a
+                    href={imageGenInfo[selectedImageGen].link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-[13px] text-blue-500 hover:text-blue-600"
+                  >
+                    Get Key
+                  </a>
+                </div>
+                <div className="relative">
+                  <input
+                    type="password"
+                    value={imageGenApiKey}
+                    onChange={(e) => {
+                      setImageGenApiKey(e.target.value);
+                      setImageGenTestResult(null);
+                    }}
+                    placeholder={imageGenInfo[selectedImageGen].placeholder}
+                    className={`w-full px-0 py-2 bg-transparent border-0 border-b-2 focus:outline-none transition-colors text-[17px] text-gray-900 placeholder:text-gray-400 ${
+                      imageGenTestResult === 'error'
+                        ? 'border-red-400'
+                        : imageGenTestResult === 'success'
+                        ? 'border-green-400'
+                        : 'border-gray-200 focus:border-blue-500'
+                    }`}
+                  />
+                  {imageGenTestResult === 'success' && (
+                    <div className="absolute right-0 top-1/2 -translate-y-1/2">
+                      <Check className="h-5 w-5 text-green-500" />
+                    </div>
+                  )}
+                  {imageGenTestResult === 'error' && (
+                    <div className="absolute right-0 top-1/2 -translate-y-1/2">
+                      <X className="h-5 w-5 text-red-500" />
+                    </div>
+                  )}
+                </div>
+
+                {/* Status Message */}
+                {imageGenTestResult === 'success' && (
+                  <p className="text-[13px] text-green-600 mt-2">Connection successful</p>
+                )}
+                {imageGenTestResult === 'error' && (
+                  <p className="text-[13px] text-red-500 mt-2">Invalid API key</p>
+                )}
+              </div>
+            )}
+
+            {/* Action Button */}
+            {selectedImageGen !== 'none' ? (
+              <button
+                onClick={() => {
+                  if (imageGenTestResult === 'success') {
+                    handleComplete(selectedProvider, apiKey);
+                  } else {
+                    testImageGenApiKey();
+                  }
+                }}
                 disabled={!imageGenApiKey.trim() || isTestingImageGen}
+                className={`w-full h-[50px] text-white text-[17px] font-medium rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 ${
+                  imageGenTestResult === 'success'
+                    ? 'bg-green-500 hover:bg-green-600 active:bg-green-700'
+                    : 'bg-blue-500 hover:bg-blue-600 active:bg-blue-700'
+                }`}
               >
                 {isTestingImageGen ? (
                   <>
-                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                    Test Ediliyor...
+                    <Loader2 className="h-5 w-5 animate-spin" />
+                    Testing...
                   </>
+                ) : imageGenTestResult === 'success' ? (
+                  'Continue'
                 ) : (
-                  'Baglantıyı Test Et'
+                  'Test Connection'
                 )}
-              </Button>
-
-              <Button
-                variant="outline"
-                className="w-full"
-                onClick={() => handleComplete(selectedProvider, apiKey)}
-                disabled={!imageGenApiKey.trim()}
+              </button>
+            ) : (
+              <button
+                onClick={() => {
+                  handleComplete(selectedProvider, apiKey);
+                }}
+                className="w-full h-[50px] bg-blue-500 hover:bg-blue-600 active:bg-blue-700 text-white text-[17px] font-medium rounded-xl transition-colors"
               >
-                Kaydet ve Basla
-              </Button>
+                Skip for now
+              </button>
+            )}
 
+            {/* Skip Link - only when provider selected */}
+            {selectedImageGen !== 'none' && (
               <button
                 onClick={() => {
                   setSelectedImageGen('none');
                   setImageGenApiKey('');
                   handleComplete(selectedProvider, apiKey);
                 }}
-                className="w-full text-sm text-muted-foreground hover:text-foreground transition-colors"
+                className="w-full text-[15px] text-blue-500 hover:text-blue-600 mt-4"
               >
-                Gorsel uretimi atla
+                Skip
               </button>
-            </div>
+            )}
+
+            {/* Security Note */}
+            <p className="text-[11px] text-gray-400 mt-4 text-center">
+              Your API key is only stored in this session
+            </p>
           </div>
         )}
 
-        {/* Ready Step */}
+        {/* Ready Step - Apple Style */}
         {step === 'ready' && (
           <div className="text-center">
-            <div className="w-16 h-16 rounded-full bg-green-500/10 flex items-center justify-center mx-auto mb-6">
-              <Check className="h-8 w-8 text-green-500" />
+            {/* Success Icon */}
+            <div className="w-20 h-20 rounded-full bg-green-500 flex items-center justify-center mx-auto mb-6">
+              <Check className="h-10 w-10 text-white" />
             </div>
-            <h2 className="text-xl font-bold mb-2">Her Sey Hazir!</h2>
 
-            {/* Connected Services */}
-            <div className="flex justify-center gap-3 mb-6">
-              {/* AI Provider Badge */}
-              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-violet-100 text-violet-700">
-                <Sparkles className="h-4 w-4" />
-                <span className="text-sm font-medium">
-                  {providerInfo[selectedProvider].name}
-                </span>
+            <h1 className="text-[28px] font-semibold text-gray-900 tracking-tight mb-2">
+              You&apos;re All Set!
+            </h1>
+            <p className="text-[15px] text-gray-500 mb-8">
+              You can now start using Avalon
+            </p>
+
+            {/* Connected Services - Apple Style */}
+            <div className="bg-white rounded-2xl shadow-sm border border-gray-200/60 divide-y divide-gray-100 mb-6 text-left">
+              {/* AI Provider */}
+              <div className="flex items-center gap-4 p-4">
+                <div className="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center shrink-0">
+                  <Sparkles className="h-5 w-5 text-white" />
+                </div>
+                <div className="flex-1">
+                  <p className="text-[15px] font-medium text-gray-900">{providerInfo[selectedProvider].name}</p>
+                  <p className="text-[13px] text-gray-500">AI Service</p>
+                </div>
+                <Check className="h-5 w-5 text-green-500" />
               </div>
 
-              {/* Image Gen Badge */}
+              {/* Image Gen - if selected */}
               {selectedImageGen !== 'none' && (
-                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-pink-100 text-pink-700">
-                  <ImageIcon className="h-4 w-4" />
-                  <span className="text-sm font-medium">{imageGenInfo[selectedImageGen].name}</span>
+                <div className="flex items-center gap-4 p-4">
+                  <div className="w-10 h-10 rounded-full bg-purple-500 flex items-center justify-center shrink-0">
+                    <ImageIcon className="h-5 w-5 text-white" />
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-[15px] font-medium text-gray-900">{imageGenInfo[selectedImageGen].name}</p>
+                    <p className="text-[13px] text-gray-500">Image Generation</p>
+                  </div>
+                  <Check className="h-5 w-5 text-green-500" />
                 </div>
               )}
             </div>
 
-            <p className="text-muted-foreground mb-6 text-sm">
-              {selectedImageGen !== 'none'
-                ? 'AI ve gorsel uretim servisleri ayarlandi.'
-                : `${providerInfo[selectedProvider].name} baglantisi ayarlandi.`}
-            </p>
-
-            <Button className="w-full" size="lg" onClick={() => handleComplete(selectedProvider, apiKey)}>
-              <Logo size={18} className="mr-2" />
-              Basla
-            </Button>
+            {/* Start Button - Apple Style */}
+            <button
+              onClick={() => handleComplete(selectedProvider, apiKey)}
+              className="w-full h-[50px] bg-blue-500 hover:bg-blue-600 active:bg-blue-700 text-white text-[17px] font-medium rounded-xl transition-colors"
+            >
+              Open Avalon
+            </button>
           </div>
         )}
-      </Card>
+      </div>
     </div>
   );
 }
