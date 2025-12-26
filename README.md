@@ -17,7 +17,7 @@
 
 <p align="center">
   <img src="https://img.shields.io/badge/version-0.3.0-blue.svg" alt="Version">
-  <img src="https://img.shields.io/badge/license-MIT-green.svg" alt="License">
+  <img src="https://img.shields.io/badge/license-CC%20BY--NC%204.0-blue.svg" alt="License">
   <img src="https://img.shields.io/badge/Next.js-16-black.svg" alt="Next.js">
   <img src="https://img.shields.io/badge/React-19-61DAFB.svg" alt="React">
 </p>
@@ -177,7 +177,9 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the **Creative Commons Attribution-NonCommercial 4.0 International License (CC BY-NC 4.0)**.
+
+You are free to share and adapt this work for non-commercial purposes with attribution. See the [LICENSE](LICENSE) file for details.
 
 ## Acknowledgments
 
@@ -188,5 +190,5 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ---
 
 <p align="center">
-  Made with ❤️ by <a href="https://github.com/radioheavy">radioheavy</a>
+  Made with ❤️ by <a href="https://x.com/dakmaybe">@dakmaybe</a>
 </p>

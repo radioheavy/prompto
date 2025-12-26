@@ -49,6 +49,8 @@ import {
   ExternalLink,
   Globe,
   Search,
+  Twitter,
+  Heart,
 } from 'lucide-react';
 
 // Logo component
@@ -535,16 +537,27 @@ function LandingPage({ onStart }: { onStart: () => void }) {
 
       {/* Footer */}
       <footer className="container mx-auto px-4 py-8 border-t">
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-muted-foreground">
-          <div className="flex items-center gap-2">
-            <Logo size={20} />
-            <span>Avalon</span>
+        <div className="flex flex-col items-center gap-4 text-sm text-muted-foreground">
+          {/* Top row - Made with love */}
+          <div className="flex items-center gap-1.5">
+            <span>Made with</span>
+            <Heart className="h-4 w-4 text-red-500 fill-red-500" />
+            <span>by</span>
+            <a
+              href="https://x.com/dakmaybe"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-medium text-foreground hover:text-primary transition-colors"
+            >
+              @dakmaybe
+            </a>
           </div>
 
+          {/* Bottom row - Links */}
           <div className="flex items-center gap-4">
             <span className="flex items-center gap-1.5 text-emerald-600">
               <Shield className="h-4 w-4" />
-              Privacy-first: No data leaves your device
+              Privacy-first
             </span>
             <span>•</span>
             <a
@@ -555,6 +568,16 @@ function LandingPage({ onStart }: { onStart: () => void }) {
             >
               <Github className="h-4 w-4" />
               GitHub
+            </a>
+            <span>•</span>
+            <a
+              href="https://x.com/dakmaybe"
+              className="hover:text-foreground flex items-center gap-1.5 transition-colors"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <Twitter className="h-4 w-4" />
+              X
             </a>
           </div>
         </div>
