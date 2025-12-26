@@ -9,7 +9,7 @@
 </p>
 
 <p align="center">
-  <a href="https://avalon.gunebakan.com">Live Demo</a> ·
+  <a href="https://avalon.oesnada.com">Live Demo</a> ·
   <a href="#features">Features</a> ·
   <a href="#getting-started">Getting Started</a> ·
   <a href="#supported-providers">Providers</a>
