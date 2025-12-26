@@ -344,10 +344,12 @@ export function BrowsePromptsPanel({ onClose }: BrowsePromptsPanelProps) {
 
                     {/* Content Preview */}
                     <div className="mt-3 pt-3 border-t border-gray-50">
-                      <pre className="text-xs text-gray-500 font-mono bg-gray-50 rounded-lg p-3 overflow-hidden max-h-24 line-clamp-4">
-                        {prompt.content.slice(0, 300)}
-                        {prompt.content.length > 300 && '...'}
-                      </pre>
+                      <div className="text-xs text-gray-500 font-mono bg-gray-50 rounded-lg p-3 max-h-24 overflow-hidden">
+                        <p className="whitespace-pre-wrap break-all line-clamp-4">
+                          {prompt.content.slice(0, 300)}
+                          {prompt.content.length > 300 && '...'}
+                        </p>
+                      </div>
                     </div>
                   </div>
                 );
