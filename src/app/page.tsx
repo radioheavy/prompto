@@ -71,81 +71,12 @@ const GITHUB_RELEASES = 'https://github.com/radioheavy/prompto/releases/latest';
 const MAC_DOWNLOAD = 'https://pub-7c0a7463d6c24d1bafdec3a1e227ec2c.r2.dev/releases/Avalon_0.3.0_aarch64.dmg';
 const WINDOWS_DOWNLOAD = 'https://github.com/radioheavy/prompto/releases/latest'; // Windows build coming soon
 
-// Screenshot data
-const screenshots = [
-  { src: '/a/new-1-welcome.png', rotate: -15, x: -320, label: 'Welcome' },
-  { src: '/a/new-2-dashboard.png', rotate: -8, x: -160, label: 'Dashboard' },
-  { src: '/a/new-3-editor.png', rotate: 0, x: 0, label: 'Editor' },
-  { src: '/a/new-4-expander.png', rotate: 8, x: 160, label: 'Prompt Expander' },
-  { src: '/a/new-6-reverse-result.png', rotate: 15, x: 320, label: 'Reverse Engineering' },
+// Screenshot previews for landing page
+const screenshotPreviews = [
+  { src: '/a/new-3-editor.png', label: 'Editor' },
+  { src: '/a/new-4-expander.png', label: 'Expander' },
+  { src: '/a/new-6-reverse-result.png', label: 'Reverse' },
 ];
-
-function ScreenshotShowcase() {
-  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
-
-  return (
-    <section className="container mx-auto px-4 py-16 overflow-hidden">
-      <h2 className="text-2xl font-bold text-center mb-2">See It In Action</h2>
-      <p className="text-center text-muted-foreground mb-12">Screenshots from the app</p>
-
-      <div className="relative h-[450px] max-w-6xl mx-auto">
-        {/* Fixed hover trigger zones - these don't move */}
-        <div className="absolute inset-0 flex items-center justify-center">
-          {screenshots.map((img, i) => (
-            <div
-              key={`trigger-${i}`}
-              className="absolute h-[350px] w-[200px] cursor-pointer"
-              style={{
-                left: '50%',
-                transform: `translateX(calc(-50% + ${img.x}px))`,
-                zIndex: 30,
-              }}
-              onMouseEnter={() => setHoveredIndex(i)}
-              onMouseLeave={() => setHoveredIndex(null)}
-            />
-          ))}
-        </div>
-
-        {/* Visual cards - these animate */}
-        {screenshots.map((img, i) => {
-          const isHovered = hoveredIndex === i;
-          const isOtherHovered = hoveredIndex !== null && hoveredIndex !== i;
-
-          return (
-            <div
-              key={`card-${i}`}
-              className="absolute left-1/2 top-1/2 w-[500px] pointer-events-none"
-              style={{
-                transform: isHovered
-                  ? 'translate(-50%, -50%) rotate(0deg) scale(1.15)'
-                  : `translate(-50%, -50%) translateX(${img.x}px) rotate(${img.rotate}deg) scale(${isOtherHovered ? 0.9 : 1})`,
-                zIndex: isHovered ? 20 : (5 - Math.abs(i - 2)),
-                transition: 'all 0.5s cubic-bezier(0.4, 0, 0.2, 1)',
-                opacity: isOtherHovered ? 0.5 : 1,
-              }}
-            >
-              <div className="relative rounded-xl overflow-hidden shadow-2xl border border-neutral-200/50 bg-white">
-                <Image
-                  src={img.src}
-                  alt={img.label}
-                  width={500}
-                  height={312}
-                  className="w-full h-auto"
-                />
-                <div
-                  className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4 transition-opacity duration-300"
-                  style={{ opacity: isHovered ? 1 : 0 }}
-                >
-                  <span className="text-white font-medium">{img.label}</span>
-                </div>
-              </div>
-            </div>
-          );
-        })}
-      </div>
-    </section>
-  );
-}
 
 type View = 'dashboard' | 'editor';
 type AppMode = 'loading' | 'web' | 'app' | 'mobile-web' | 'mobile-pwa';
@@ -265,320 +196,310 @@ export default function App() {
 }
 
 // ============================================
-// LANDING PAGE (Web için)
+// LANDING PAGE (Web için) - Premium Design
 // ============================================
 function LandingPage({ onStart }: { onStart: () => void }) {
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background to-muted">
+    <div className="min-h-screen bg-[#f5f5f7]">
       {/* Hero Section */}
-      <section className="container mx-auto px-4 py-20 text-center">
-        {/* Version Badge */}
-        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-violet-100 text-violet-700 text-sm font-medium mb-6">
-          <Sparkles className="h-4 w-4" />
-          v0.3.0 — Now with prompts.chat integration
-        </div>
+      <section className="relative min-h-[90vh] overflow-hidden">
+        {/* Floating gradient orbs */}
+        <div className="absolute top-20 left-1/4 w-96 h-96 bg-violet-500/30 rounded-full blur-3xl animate-pulse" />
+        <div className="absolute bottom-20 right-1/4 w-80 h-80 bg-indigo-500/20 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
+        <div className="absolute top-1/2 right-1/3 w-64 h-64 bg-pink-500/15 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '2s' }} />
 
-        <div className="flex items-center justify-center gap-3 mb-6">
-          <Logo size={56} />
-          <h1 className="text-5xl font-bold">Avalon</h1>
-        </div>
-
-        <p className="text-xl text-muted-foreground max-w-2xl mx-auto mb-4 italic">
-          The AI-powered prompt editor for creators
-        </p>
-
-        <p className="text-lg text-muted-foreground max-w-2xl mx-auto mb-12">
-          View JSON prompts in a <span className="text-foreground font-medium">visual tree structure</span>,
-          <span className="text-foreground font-medium"> edit with one click</span>,
-          <span className="text-primary font-semibold"> expand prompts with AI</span>, and
-          <span className="text-primary font-semibold"> reverse engineer from images</span>.
-          <br />
-          <span className="text-sm mt-2 block">Generate images with fal.ai or Wiro. Import prompts from prompts.chat.</span>
-        </p>
-
-        {/* Start Button */}
-        <Button size="lg" className="gap-2 text-lg px-8 py-6" onClick={onStart}>
-          <Sparkles className="h-6 w-6" />
-          Get Started
-        </Button>
-
-        <p className="text-xs text-muted-foreground mt-4">
-          Free • No registration • Works with your API key
-        </p>
-      </section>
-
-      {/* Screenshot Showcase */}
-      <ScreenshotShowcase />
-
-      {/* AI Providers */}
-      <section className="container mx-auto px-4 py-8">
-        <h2 className="text-2xl font-bold text-center mb-2">Supported AI Services</h2>
-        <p className="text-center text-muted-foreground mb-8">Use your own API key</p>
-
-        <div className="grid md:grid-cols-3 gap-6 max-w-4xl mx-auto">
-          {/* Anthropic */}
-          <Card className="p-6">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-10 h-10 rounded-full bg-orange-100 flex items-center justify-center shrink-0">
-                <Sparkles className="h-5 w-5 text-orange-600" />
-              </div>
-              <div>
-                <h3 className="font-semibold text-lg">Anthropic</h3>
-              </div>
-            </div>
-            <p className="text-muted-foreground text-sm mb-2">
-              Claude Sonnet 4, Claude Opus and other Claude models.
-            </p>
-            <a
-              href="https://console.anthropic.com/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-xs text-primary hover:underline"
-            >
-              Get API Key →
-            </a>
-          </Card>
-
-          {/* OpenAI */}
-          <Card className="p-6">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center shrink-0">
-                <Zap className="h-5 w-5 text-emerald-600" />
-              </div>
-              <div>
-                <h3 className="font-semibold text-lg">OpenAI</h3>
-              </div>
-            </div>
-            <p className="text-muted-foreground text-sm mb-2">
-              GPT-4o, GPT-4 Turbo and other OpenAI models.
-            </p>
-            <a
-              href="https://platform.openai.com/api-keys"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-xs text-emerald-600 hover:underline"
-            >
-              Get API Key →
-            </a>
-          </Card>
-
-          {/* Google */}
-          <Card className="p-6">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center shrink-0">
-                <MessageSquare className="h-5 w-5 text-blue-600" />
-              </div>
-              <div>
-                <h3 className="font-semibold text-lg">Google Gemini</h3>
-              </div>
-            </div>
-            <p className="text-muted-foreground text-sm mb-2">
-              Gemini Pro, Gemini Flash and other models.
-            </p>
-            <a
-              href="https://aistudio.google.com/apikey"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-xs text-blue-600 hover:underline"
-            >
-              Get API Key →
-            </a>
-          </Card>
-        </div>
-
-        <p className="text-center text-xs text-muted-foreground mt-6">
-          Your API key is only stored in session memory, never saved anywhere.
-        </p>
-      </section>
-
-      {/* Features */}
-      <section className="container mx-auto px-4 py-16">
-        <h2 className="text-3xl font-bold text-center mb-4">What Can You Do?</h2>
-        <p className="text-center text-muted-foreground mb-12 max-w-2xl mx-auto">
-          Easily manage prompts for AI image generation, chatbots, or any AI system
-        </p>
-
-        <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
-          <Card className="p-6 text-center">
-            <Eye className="h-10 w-10 text-primary mx-auto mb-4" />
-            <h3 className="font-semibold text-lg mb-2">Visual Tree Structure</h3>
-            <p className="text-muted-foreground text-sm">
-              View hundreds of lines of JSON as an understandable tree. Every field is collapsible.
-            </p>
-          </Card>
-
-          <Card className="p-6 text-center">
-            <Zap className="h-10 w-10 text-primary mx-auto mb-4" />
-            <h3 className="font-semibold text-lg mb-2">One-Click Editing</h3>
-            <p className="text-muted-foreground text-sm">
-              Click on any field to edit, type the new value. Toggle for booleans.
-            </p>
-          </Card>
-
-          <Card className="p-6 text-center">
-            <MessageSquare className="h-10 w-10 text-primary mx-auto mb-4" />
-            <h3 className="font-semibold text-lg mb-2">AI-Powered Editing</h3>
-            <p className="text-muted-foreground text-sm">
-              Type &quot;make the lighting more dramatic&quot; and let AI update it automatically.
-            </p>
-          </Card>
-
-          <Card className="p-6 text-center border-primary/30 bg-primary/5">
-            <Sparkles className="h-10 w-10 text-primary mx-auto mb-4" />
-            <h3 className="font-semibold text-lg mb-2">Prompt Expansion</h3>
-            <p className="text-muted-foreground text-sm">
-              Transform a simple prompt into a rich, detailed one. Add scene, style, lighting, colors.
-            </p>
-          </Card>
-
-          <Card className="p-6 text-center border-purple-500/30 bg-purple-500/5">
-            <RotateCcw className="h-10 w-10 text-purple-500 mx-auto mb-4" />
-            <h3 className="font-semibold text-lg mb-2">Reverse Engineering</h3>
-            <p className="text-muted-foreground text-sm">
-              Upload an image, let AI analyze it and extract the prompt that could recreate it.
-            </p>
-          </Card>
-
-          <Card className="p-6 text-center border-pink-500/30 bg-pink-500/5">
-            <ImageIcon className="h-10 w-10 text-pink-500 mx-auto mb-4" />
-            <h3 className="font-semibold text-lg mb-2">Image Generation</h3>
-            <p className="text-muted-foreground text-sm">
-              Generate images directly from your prompts with fal.ai or Wiro. Flux, SDXL and more.
-            </p>
-          </Card>
-
-          <Card className="p-6 text-center border-violet-500/30 bg-violet-500/5 md:col-start-2">
-            <Globe className="h-10 w-10 text-violet-500 mx-auto mb-4" />
-            <h3 className="font-semibold text-lg mb-2">Browse & Import</h3>
-            <p className="text-muted-foreground text-sm">
-              Discover thousands of prompts from prompts.chat. Search, filter, and import with one click.
-            </p>
-          </Card>
-        </div>
-      </section>
-
-      {/* How it works */}
-      <section className="container mx-auto px-4 py-16 bg-muted/50">
-        <h2 className="text-3xl font-bold text-center mb-4">How to Get Started?</h2>
-        <p className="text-center text-muted-foreground mb-12">Ready in 3 steps</p>
-
-        <div className="max-w-2xl mx-auto">
-          <div className="relative">
-            {/* Connection line */}
-            <div className="absolute left-4 top-8 bottom-8 w-0.5 bg-border" />
-
-            <div className="space-y-8">
-              <div className="flex items-start gap-6 relative">
-                <div className="w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-bold shrink-0 z-10">1</div>
-                <div className="pt-1">
-                  <h3 className="font-semibold mb-1">Choose AI Provider</h3>
-                  <p className="text-muted-foreground text-sm">Select Anthropic, OpenAI or Google and enter your API key.</p>
-                </div>
-              </div>
-
-              <div className="flex items-start gap-6 relative">
-                <div className="w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-bold shrink-0 z-10">2</div>
-                <div className="pt-1">
-                  <h3 className="font-semibold mb-1">Set Up Image Generation (Optional)</h3>
-                  <p className="text-muted-foreground text-sm">Enter your fal.ai or Wiro API key to generate images from prompts.</p>
-                </div>
-              </div>
-
-              <div className="flex items-start gap-6 relative">
-                <div className="w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-bold shrink-0 z-10">3</div>
-                <div className="pt-1">
-                  <h3 className="font-semibold mb-1">Start Creating</h3>
-                  <p className="text-muted-foreground text-sm">Create prompts, expand them, reverse engineer, or generate images!</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Benefits */}
-      <section className="container mx-auto px-4 py-16">
-        <h2 className="text-3xl font-bold text-center mb-4">Why Avalon?</h2>
-        <p className="text-center text-muted-foreground mb-12">Features that make prompt management easy</p>
-
-        <div className="max-w-3xl mx-auto grid sm:grid-cols-2 gap-4">
-          {[
-            { text: 'Multi-AI Support', desc: 'OpenAI, Anthropic, Google Gemini' },
-            { text: 'Image Generation', desc: 'fal.ai and Wiro integration' },
-            { text: 'Prompt Expansion', desc: 'Enrich simple prompts with AI' },
-            { text: 'Reverse Engineering', desc: 'Extract prompts from images' },
-            { text: 'Browse & Import', desc: 'Thousands of prompts from prompts.chat' },
-            { text: 'Completely Free', desc: 'Open source, no charges' },
-            { text: 'Privacy First', desc: 'API keys stored in session only' },
-            { text: 'No Registration', desc: 'Start using immediately' },
-          ].map((benefit, i) => (
-            <Card key={i} className="p-4 flex items-start gap-3">
-              <Check className="h-5 w-5 text-green-500 mt-0.5 shrink-0" />
-              <div>
-                <p className="font-medium">{benefit.text}</p>
-                <p className="text-sm text-muted-foreground">{benefit.desc}</p>
-              </div>
-            </Card>
-          ))}
-        </div>
-      </section>
-
-      {/* CTA */}
-      <section className="container mx-auto px-4 py-16 text-center">
-        <Card className="max-w-lg mx-auto p-8 bg-primary/5 border-primary/20">
-          <h2 className="text-2xl font-bold mb-2">Get Started Now</h2>
-          <p className="text-muted-foreground mb-6">Enter your API key and start editing prompts</p>
-          <Button size="lg" className="gap-2" onClick={onStart}>
-            <Sparkles className="h-5 w-5" />
-            Launch App
-          </Button>
-        </Card>
-      </section>
-
-      {/* Footer */}
-      <footer className="container mx-auto px-4 py-8 border-t">
-        <div className="flex flex-col items-center gap-4 text-sm text-muted-foreground">
-          {/* Top row - Made with love */}
-          <div className="flex items-center gap-1.5">
-            <span>Made with</span>
-            <Heart className="h-4 w-4 text-red-500 fill-red-500" />
-            <span>by</span>
-            <a
-              href="https://x.com/dakmaybe"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="font-medium text-foreground hover:text-primary transition-colors"
-            >
-              @dakmaybe
-            </a>
+        {/* Content */}
+        <div className="relative container mx-auto px-4 pt-20 pb-32 text-center">
+          {/* Version badge - glassmorphism */}
+          <div className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-white/60 backdrop-blur-sm border border-white/50 shadow-lg shadow-violet-500/10 mb-8">
+            <Sparkles className="h-4 w-4 text-violet-600" />
+            <span className="text-sm font-medium text-violet-700">v0.3.0</span>
+            <span className="text-sm text-gray-500">— prompts.chat integration</span>
           </div>
 
-          {/* Bottom row - Links */}
-          <div className="flex items-center gap-4">
-            <span className="flex items-center gap-1.5 text-emerald-600">
-              <Shield className="h-4 w-4" />
+          {/* Title */}
+          <h1 className="text-6xl md:text-7xl font-bold tracking-tight text-gray-900 mb-4">
+            Avalon
+          </h1>
+
+          {/* Subtitle */}
+          <p className="text-xl md:text-2xl text-gray-600 mb-8">
+            The AI-powered prompt editor for creators
+          </p>
+
+          {/* Feature pills */}
+          <div className="flex flex-wrap justify-center gap-3 mb-10">
+            {['Visual Editing', 'AI Expansion', 'Reverse Engineering', 'Image Gen'].map(f => (
+              <span key={f} className="px-4 py-2 rounded-full bg-white/80 backdrop-blur-sm border border-gray-200/50 text-sm text-gray-700 shadow-sm">
+                {f}
+              </span>
+            ))}
+          </div>
+
+          {/* CTA Buttons */}
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+            <Button
+              onClick={onStart}
+              className="h-14 px-8 text-lg rounded-2xl bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 shadow-lg shadow-violet-500/25 border-0"
+            >
+              <Sparkles className="h-5 w-5 mr-2" />
+              Get Started Free
+            </Button>
+            <Button
+              variant="outline"
+              className="h-14 px-8 text-lg rounded-2xl border-gray-300 bg-white/80 backdrop-blur-sm hover:bg-white"
+              onClick={() => window.open('https://github.com/radioheavy/avalon', '_blank')}
+            >
+              <Github className="h-5 w-5 mr-2" />
+              View on GitHub
+            </Button>
+          </div>
+
+          {/* Trust badges */}
+          <div className="flex items-center justify-center gap-6 mt-8 text-sm text-gray-500">
+            <span className="flex items-center gap-1.5">
+              <Shield className="h-4 w-4 text-emerald-500" />
               Privacy-first
             </span>
-            <span>•</span>
-            <a
-              href="https://github.com/radioheavy/avalon"
-              className="hover:text-foreground flex items-center gap-1.5 transition-colors"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <Github className="h-4 w-4" />
-              GitHub
-            </a>
-            <span>•</span>
-            <a
-              href="https://x.com/dakmaybe"
-              className="hover:text-foreground flex items-center gap-1.5 transition-colors"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <Twitter className="h-4 w-4" />
-              X
-            </a>
+            <span className="text-gray-300">•</span>
+            <span>No registration</span>
+            <span className="text-gray-300">•</span>
+            <span>Open source</span>
+          </div>
+        </div>
+      </section>
+
+      {/* Screenshot Section - Browser Mockup */}
+      <section className="py-20 bg-white">
+        <div className="container mx-auto px-4">
+          {/* Browser window mockup */}
+          <div className="max-w-5xl mx-auto">
+            <div className="rounded-2xl overflow-hidden shadow-2xl shadow-gray-900/10 border border-gray-200/50">
+              {/* Browser bar */}
+              <div className="h-10 bg-gray-100 border-b border-gray-200 flex items-center px-4 gap-2">
+                <div className="w-3 h-3 rounded-full bg-red-400" />
+                <div className="w-3 h-3 rounded-full bg-yellow-400" />
+                <div className="w-3 h-3 rounded-full bg-green-400" />
+                <div className="flex-1 mx-4">
+                  <div className="h-6 bg-white rounded-md max-w-md mx-auto flex items-center justify-center text-xs text-gray-400">
+                    avalon.oesnada.com
+                  </div>
+                </div>
+              </div>
+              {/* Screenshot */}
+              <Image
+                src="/a/new-2-dashboard.png"
+                alt="Avalon Dashboard"
+                width={1200}
+                height={675}
+                className="w-full"
+              />
+            </div>
+          </div>
+
+          {/* Small screenshot previews below */}
+          <div className="flex justify-center gap-4 mt-8">
+            {screenshotPreviews.map((item, i) => (
+              <div key={i} className="w-48 rounded-xl overflow-hidden shadow-lg border border-gray-200/50 hover:scale-105 transition-transform cursor-pointer bg-white">
+                <Image
+                  src={item.src}
+                  alt={item.label}
+                  width={192}
+                  height={108}
+                  className="w-full"
+                />
+                <div className="px-3 py-2 text-center text-xs font-medium text-gray-600 bg-gray-50">
+                  {item.label}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Features Section - Bento Grid */}
+      <section className="py-20 bg-[#f5f5f7]">
+        <div className="container mx-auto px-4">
+          <h2 className="text-4xl font-bold text-center text-gray-900 mb-4">Powerful Features</h2>
+          <p className="text-gray-500 text-center mb-12 max-w-2xl mx-auto">
+            Everything you need to create, edit, and optimize AI prompts
+          </p>
+
+          <div className="grid grid-cols-12 gap-4 max-w-6xl mx-auto">
+            {/* Large card - Visual Editor */}
+            <div className="col-span-12 md:col-span-8 bg-gradient-to-br from-violet-500 to-indigo-600 rounded-3xl p-8 text-white relative overflow-hidden">
+              {/* Floating elements */}
+              <div className="absolute -right-8 -bottom-8 w-40 h-40 bg-white/10 rounded-full blur-2xl" />
+              <div className="absolute right-20 top-10 w-20 h-20 bg-white/5 rounded-full blur-xl" />
+              <Eye className="h-12 w-12 mb-4 opacity-90" />
+              <h3 className="text-2xl font-bold mb-2">Visual JSON Editor</h3>
+              <p className="text-white/80 max-w-md">
+                View complex prompts as an intuitive tree. Click to edit any field. No more wrestling with raw JSON.
+              </p>
+            </div>
+
+            {/* Small card - AI Editing */}
+            <div className="col-span-12 md:col-span-4 bg-white rounded-3xl p-6 border border-gray-200/50 shadow-sm">
+              <div className="w-12 h-12 rounded-2xl bg-emerald-100 flex items-center justify-center mb-4">
+                <Sparkles className="h-6 w-6 text-emerald-600" />
+              </div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">AI-Powered</h3>
+              <p className="text-gray-500 text-sm">Edit with natural language commands</p>
+            </div>
+
+            {/* Medium cards row */}
+            <div className="col-span-12 md:col-span-4 bg-white rounded-3xl p-6 border border-gray-200/50 shadow-sm">
+              <div className="w-12 h-12 rounded-2xl bg-violet-100 flex items-center justify-center mb-4">
+                <Wand2 className="h-6 w-6 text-violet-600" />
+              </div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">Prompt Expansion</h3>
+              <p className="text-gray-500 text-sm">Transform simple ideas into detailed prompts</p>
+            </div>
+
+            <div className="col-span-12 md:col-span-4 bg-white rounded-3xl p-6 border border-gray-200/50 shadow-sm">
+              <div className="w-12 h-12 rounded-2xl bg-purple-100 flex items-center justify-center mb-4">
+                <RotateCcw className="h-6 w-6 text-purple-600" />
+              </div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">Reverse Engineering</h3>
+              <p className="text-gray-500 text-sm">Extract prompts from any image</p>
+            </div>
+
+            <div className="col-span-12 md:col-span-4 bg-white rounded-3xl p-6 border border-gray-200/50 shadow-sm">
+              <div className="w-12 h-12 rounded-2xl bg-pink-100 flex items-center justify-center mb-4">
+                <ImageIcon className="h-6 w-6 text-pink-600" />
+              </div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">Image Generation</h3>
+              <p className="text-gray-500 text-sm">Generate with fal.ai or Wiro</p>
+            </div>
+
+            {/* Wide card - Browse prompts.chat */}
+            <div className="col-span-12 bg-gradient-to-r from-pink-500 to-rose-500 rounded-3xl p-8 text-white relative overflow-hidden">
+              <div className="absolute right-10 top-1/2 -translate-y-1/2 w-32 h-32 bg-white/10 rounded-full blur-2xl" />
+              <div className="flex items-center gap-4">
+                <Globe className="h-10 w-10 shrink-0" />
+                <div>
+                  <h3 className="text-xl font-bold mb-1">Browse & Import from prompts.chat</h3>
+                  <p className="text-white/80">
+                    Discover thousands of community prompts. Search, filter, and import with one click.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Providers Section - Compact Strip */}
+      <section className="py-16 bg-white border-y border-gray-100">
+        <div className="container mx-auto px-4 text-center">
+          <p className="text-sm text-gray-500 mb-8">Works with your favorite AI providers</p>
+          <div className="flex flex-wrap items-center justify-center gap-8 md:gap-12">
+            {/* Anthropic */}
+            <div className="flex items-center gap-3 text-gray-700">
+              <div className="w-10 h-10 rounded-xl bg-orange-100 flex items-center justify-center">
+                <Sparkles className="h-5 w-5 text-orange-600" />
+              </div>
+              <span className="font-medium">Anthropic</span>
+            </div>
+            {/* OpenAI */}
+            <div className="flex items-center gap-3 text-gray-700">
+              <div className="w-10 h-10 rounded-xl bg-emerald-100 flex items-center justify-center">
+                <Zap className="h-5 w-5 text-emerald-600" />
+              </div>
+              <span className="font-medium">OpenAI</span>
+            </div>
+            {/* Google */}
+            <div className="flex items-center gap-3 text-gray-700">
+              <div className="w-10 h-10 rounded-xl bg-blue-100 flex items-center justify-center">
+                <MessageSquare className="h-5 w-5 text-blue-600" />
+              </div>
+              <span className="font-medium">Google Gemini</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* How it Works - Horizontal Steps */}
+      <section className="py-20 bg-[#f5f5f7]">
+        <div className="container mx-auto px-4">
+          <h2 className="text-4xl font-bold text-center text-gray-900 mb-12">Get Started in Seconds</h2>
+
+          <div className="grid md:grid-cols-3 gap-8 max-w-4xl mx-auto">
+            {[
+              { num: '1', title: 'Choose Provider', desc: 'Anthropic, OpenAI, or Google', color: 'violet' },
+              { num: '2', title: 'Enter API Key', desc: 'Stored locally, never sent to servers', color: 'indigo' },
+              { num: '3', title: 'Start Creating', desc: 'Create, edit, expand, and generate', color: 'blue' },
+            ].map((step) => (
+              <div key={step.num} className="text-center">
+                <div className={`w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4 ${
+                  step.color === 'violet' ? 'bg-violet-100' :
+                  step.color === 'indigo' ? 'bg-indigo-100' : 'bg-blue-100'
+                }`}>
+                  <span className={`text-2xl font-bold ${
+                    step.color === 'violet' ? 'text-violet-600' :
+                    step.color === 'indigo' ? 'text-indigo-600' : 'text-blue-600'
+                  }`}>{step.num}</span>
+                </div>
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">{step.title}</h3>
+                <p className="text-gray-500 text-sm">{step.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* CTA Section - Dark Gradient */}
+      <section className="py-20 bg-gradient-to-br from-gray-900 to-gray-800 text-white">
+        <div className="container mx-auto px-4 text-center">
+          <h2 className="text-4xl font-bold mb-4">Ready to Transform Your Prompts?</h2>
+          <p className="text-gray-400 mb-8 max-w-xl mx-auto">
+            Join creators who use Avalon to craft perfect AI prompts
+          </p>
+          <Button
+            onClick={onStart}
+            className="h-14 px-10 text-lg rounded-2xl bg-white text-gray-900 hover:bg-gray-100 shadow-lg border-0"
+          >
+            <Sparkles className="h-5 w-5 mr-2" />
+            Launch Avalon
+          </Button>
+        </div>
+      </section>
+
+      {/* Footer - Minimal Centered */}
+      <footer className="py-12 bg-white border-t border-gray-100">
+        <div className="container mx-auto px-4">
+          <div className="flex flex-col items-center gap-6">
+            {/* Logo + name */}
+            <div className="flex items-center gap-2">
+              <Logo size={32} />
+              <span className="font-semibold text-gray-900">Avalon</span>
+            </div>
+
+            {/* Made with love */}
+            <p className="flex items-center gap-1.5 text-gray-500">
+              Made with <Heart className="h-4 w-4 text-red-500 fill-red-500" /> by
+              <a href="https://x.com/dakmaybe" target="_blank" rel="noopener noreferrer" className="font-medium text-gray-900 hover:text-violet-600 transition-colors">
+                @dakmaybe
+              </a>
+            </p>
+
+            {/* Links */}
+            <div className="flex items-center gap-6 text-sm text-gray-500">
+              <a href="https://github.com/radioheavy/avalon" target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 hover:text-gray-900 transition-colors">
+                <Github className="h-4 w-4" />
+                GitHub
+              </a>
+              <a href="https://x.com/dakmaybe" target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 hover:text-gray-900 transition-colors">
+                <Twitter className="h-4 w-4" />
+                Twitter
+              </a>
+            </div>
+
+            {/* Privacy badge */}
+            <div className="flex items-center gap-1.5 text-xs text-emerald-600">
+              <Shield className="h-3.5 w-3.5" />
+              Privacy-first: Your data never leaves your device
+            </div>
           </div>
         </div>
       </footer>
