@@ -305,14 +305,13 @@ function LandingPage({ onStart }: { onStart: () => void }) {
 
         <div className="grid md:grid-cols-3 gap-6 max-w-4xl mx-auto">
           {/* Anthropic */}
-          <Card className="p-6 border-primary/30 bg-primary/5">
+          <Card className="p-6">
             <div className="flex items-center gap-3 mb-4">
-              <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center shrink-0">
-                <Sparkles className="h-5 w-5 text-primary" />
+              <div className="w-10 h-10 rounded-full bg-orange-100 flex items-center justify-center shrink-0">
+                <Sparkles className="h-5 w-5 text-orange-600" />
               </div>
               <div>
                 <h3 className="font-semibold text-lg">Anthropic</h3>
-                <span className="text-xs text-primary font-medium">Önerilen</span>
               </div>
             </div>
             <p className="text-muted-foreground text-sm mb-2">
