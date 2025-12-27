@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { usePromptStore } from '@/lib/store/promptStore';
 import { JsonObject } from '@/types/prompt';
 import { Button } from '@/components/ui/button';
@@ -27,8 +27,8 @@ import {
   Eye,
   Save,
 } from 'lucide-react';
-import { FAL_POPULAR_MODELS, FAL_IMAGE_SIZES, generateImage } from '@/lib/ai/fal-client';
-import { WIRO_POPULAR_MODELS, WIRO_ASPECT_RATIOS, generateWiroImage } from '@/lib/ai/wiro-client';
+import { FAL_POPULAR_MODELS, FAL_IMAGE_SIZES, generateImage, fetchFalModels, FalModel } from '@/lib/ai/fal-client';
+import { WIRO_POPULAR_MODELS, WIRO_ASPECT_RATIOS, generateWiroImage, fetchWiroModels, WiroModel } from '@/lib/ai/wiro-client';
 
 interface ReversedPrompt {
   reverse_prompt: string;
@@ -95,6 +95,27 @@ export function ReverseEngineerPanel({ onClose }: ReverseEngineerPanelProps) {
   const [generateError, setGenerateError] = useState<string | null>(null);
   const [customPrompt, setCustomPrompt] = useState('');
   const [useCustomPrompt, setUseCustomPrompt] = useState(false);
+
+  // Dynamic model lists
+  const [falModels, setFalModels] = useState<FalModel[]>(FAL_POPULAR_MODELS);
+  const [wiroModels, setWiroModels] = useState<WiroModel[]>(WIRO_POPULAR_MODELS);
+
+  // Fetch models on mount
+  useEffect(() => {
+    const loadModels = async () => {
+      try {
+        const [fal, wiro] = await Promise.all([
+          fetchFalModels(),
+          fetchWiroModels(),
+        ]);
+        setFalModels(fal);
+        setWiroModels(wiro);
+      } catch {
+        // Keep fallback models
+      }
+    };
+    loadModels();
+  }, []);
 
   // Get current AI provider and settings
   const currentProvider = typeof window !== 'undefined'
@@ -641,7 +662,7 @@ export function ReverseEngineerPanel({ onClose }: ReverseEngineerPanelProps) {
                         onChange={(e) => setSelectedWiroModel(e.target.value)}
                         className="w-full px-3 py-2 text-sm rounded-xl border border-neutral-200 bg-white focus:ring-2 focus:ring-emerald-300 focus:border-emerald-300 outline-none"
                       >
-                        {WIRO_POPULAR_MODELS.map((model) => (
+                        {wiroModels.map((model) => (
                           <option key={model.id} value={model.id}>
                             {model.name}
                           </option>
@@ -653,7 +674,7 @@ export function ReverseEngineerPanel({ onClose }: ReverseEngineerPanelProps) {
                         onChange={(e) => setSelectedFalModel(e.target.value)}
                         className="w-full px-3 py-2 text-sm rounded-xl border border-neutral-200 bg-white focus:ring-2 focus:ring-emerald-300 focus:border-emerald-300 outline-none"
                       >
-                        {FAL_POPULAR_MODELS.map((model) => (
+                        {falModels.map((model) => (
                           <option key={model.id} value={model.id}>
                             {model.name}
                           </option>

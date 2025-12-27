@@ -30,7 +30,19 @@ export const WIRO_POPULAR_MODELS: WiroModel[] = [
   { id: 'google/nano-banana-pro', name: 'Nano Banana Pro', description: 'Google Gemini 3 Pro - Hizli ve kaliteli' },
   { id: 'bytedance/seedream-v4-5', name: 'Seedream 4.5', description: 'ByteDance - Yuksek kalite' },
   { id: 'pruna-ai/wan-image-small', name: 'Wan Image Small', description: 'Hizli ve verimli' },
+  { id: 'google/imagen-4', name: 'Imagen 4', description: 'Google Imagen 4' },
+  { id: 'openai/sora-2-pro', name: 'Sora 2 Pro', description: 'OpenAI Video/Image' },
+  { id: 'black-forest-labs/flux-1-1-pro', name: 'FLUX 1.1 Pro', description: 'Black Forest Labs' },
+  { id: 'black-forest-labs/flux-pro', name: 'FLUX Pro', description: 'Black Forest Labs' },
+  { id: 'stability-ai/stable-diffusion-3-5', name: 'SD 3.5', description: 'Stability AI' },
 ];
+
+// Fetch models from Wiro.ai (currently returns static list - no public API)
+export async function fetchWiroModels(): Promise<WiroModel[]> {
+  // Wiro.ai doesn't have a public model list API yet
+  // Return curated list
+  return WIRO_POPULAR_MODELS;
+}
 
 // Resolution options for Wiro
 export const WIRO_RESOLUTIONS = [

@@ -475,6 +475,10 @@ function EditorView({ prompt, onBack }: { prompt: Prompt; onBack: () => void }) 
   const [mobileTab, setMobileTab] = useState<'tree' | 'preview' | 'ai'>('tree');
   const [tabletLeftTab, setTabletLeftTab] = useState<'tree' | 'preview'>('tree');
 
+  // Provider dropdown states
+  const [showProviderDropdown, setShowProviderDropdown] = useState(false);
+  const [showImageGenDropdown, setShowImageGenDropdown] = useState(false);
+
   const handleCopy = () => {
     navigator.clipboard.writeText(JSON.stringify(prompt.content, null, 2));
     setCopied(true);
@@ -579,19 +583,83 @@ function EditorView({ prompt, onBack }: { prompt: Prompt; onBack: () => void }) 
               </>
             )}
           </button>
-          {/* AI Provider Badge - Hidden on mobile */}
-          <div className="hidden sm:flex items-center gap-1.5 px-2 md:px-3 py-1.5 rounded-xl bg-emerald-50">
-            <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-            <span className="text-xs font-medium text-emerald-700">{providerNames[currentProvider]}</span>
+          {/* AI Provider Badge - Clickable */}
+          <div className="relative hidden sm:block">
+            <button
+              onClick={() => {
+                setShowProviderDropdown(!showProviderDropdown);
+                setShowImageGenDropdown(false);
+              }}
+              className="flex items-center gap-1.5 px-2 md:px-3 py-1.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 transition-colors"
+            >
+              <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+              <span className="text-xs font-medium text-emerald-700">{providerNames[currentProvider]}</span>
+              <ChevronDown className="h-3 w-3 text-emerald-600" />
+            </button>
+            {showProviderDropdown && (
+              <div className="absolute right-0 top-full mt-1 bg-white rounded-xl shadow-lg border border-neutral-200 py-1 min-w-[140px] z-50">
+                {(['anthropic', 'openai', 'google'] as const).map((provider) => (
+                  <button
+                    key={provider}
+                    onClick={() => {
+                      localStorage.setItem('avalon-ai-provider', provider);
+                      setShowProviderDropdown(false);
+                      window.location.reload();
+                    }}
+                    className={`w-full px-3 py-2 text-left text-sm hover:bg-neutral-50 flex items-center gap-2 ${
+                      currentProvider === provider ? 'text-emerald-600 font-medium' : 'text-neutral-700'
+                    }`}
+                  >
+                    {currentProvider === provider && <Check className="h-3.5 w-3.5" />}
+                    <span className={currentProvider === provider ? '' : 'ml-5'}>{providerNames[provider]}</span>
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
 
-          {/* Image Gen Provider Badge - Hidden on mobile */}
-          {currentImageGen !== 'none' && (
-            <div className="hidden md:flex items-center gap-1.5 px-2 md:px-3 py-1.5 rounded-xl bg-pink-50">
-              <div className="w-1.5 h-1.5 rounded-full bg-pink-500" />
-              <span className="text-xs font-medium text-pink-700">{imageGenNames[currentImageGen]}</span>
-            </div>
-          )}
+          {/* Image Gen Provider Badge - Clickable */}
+          <div className="relative hidden md:block">
+            <button
+              onClick={() => {
+                setShowImageGenDropdown(!showImageGenDropdown);
+                setShowProviderDropdown(false);
+              }}
+              className={`flex items-center gap-1.5 px-2 md:px-3 py-1.5 rounded-xl transition-colors ${
+                currentImageGen !== 'none'
+                  ? 'bg-pink-50 hover:bg-pink-100'
+                  : 'bg-neutral-100 hover:bg-neutral-200'
+              }`}
+            >
+              <div className={`w-1.5 h-1.5 rounded-full ${currentImageGen !== 'none' ? 'bg-pink-500' : 'bg-neutral-400'}`} />
+              <span className={`text-xs font-medium ${currentImageGen !== 'none' ? 'text-pink-700' : 'text-neutral-600'}`}>
+                {currentImageGen !== 'none' ? imageGenNames[currentImageGen] : 'Image Gen'}
+              </span>
+              <ChevronDown className={`h-3 w-3 ${currentImageGen !== 'none' ? 'text-pink-600' : 'text-neutral-500'}`} />
+            </button>
+            {showImageGenDropdown && (
+              <div className="absolute right-0 top-full mt-1 bg-white rounded-xl shadow-lg border border-neutral-200 py-1 min-w-[140px] z-50">
+                {(['fal', 'wiro', 'none'] as const).map((provider) => (
+                  <button
+                    key={provider}
+                    onClick={() => {
+                      localStorage.setItem('avalon-image-gen-provider', provider);
+                      setShowImageGenDropdown(false);
+                      window.location.reload();
+                    }}
+                    className={`w-full px-3 py-2 text-left text-sm hover:bg-neutral-50 flex items-center gap-2 ${
+                      currentImageGen === provider ? 'text-pink-600 font-medium' : 'text-neutral-700'
+                    }`}
+                  >
+                    {currentImageGen === provider && <Check className="h-3.5 w-3.5" />}
+                    <span className={currentImageGen === provider ? '' : 'ml-5'}>
+                      {provider === 'none' ? 'Kapali' : imageGenNames[provider]}
+                    </span>
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
       </header>
 
@@ -877,6 +945,7 @@ function OnboardingScreen({ onComplete }: { onComplete: () => void }) {
       // Session storage - tarayıcı kapanınca silinir
       sessionStorage.setItem('avalon-api-key', key);
     }
+
 
     // Image Gen ayarlarını kaydet
     localStorage.setItem('avalon-image-gen-provider', selectedImageGen);

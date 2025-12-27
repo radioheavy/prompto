@@ -45,37 +45,37 @@ export const FAL_IMAGE_SIZES = [
 ];
 
 // Fetch models from fal.ai API (with fallback to curated list)
-export async function fetchFalModels(apiKey?: string): Promise<FalModel[]> {
+export async function fetchFalModels(): Promise<FalModel[]> {
   try {
-    const headers: Record<string, string> = {
-      'Content-Type': 'application/json',
-    };
+    const allModels: FalModel[] = [];
+    let page = 1;
+    const maxPages = 5; // Safety limit
 
-    if (apiKey) {
-      headers['Authorization'] = `Key ${apiKey}`;
+    while (page <= maxPages) {
+      const response = await fetch(
+        `https://fal.ai/api/models?categories=text-to-image&page=${page}&size=50`
+      );
+
+      if (!response.ok) break;
+
+      const data = await response.json();
+      if (!data.items || data.items.length === 0) break;
+
+      for (const item of data.items) {
+        if (item.modelId && item.title) {
+          allModels.push({
+            id: item.modelId,
+            name: item.title,
+            description: item.shortDescription || undefined,
+          });
+        }
+      }
+
+      if (page >= (data.pages || 1)) break;
+      page++;
     }
 
-    const response = await fetch('https://rest.fal.ai/models?category=image', {
-      method: 'GET',
-      headers,
-    });
-
-    if (!response.ok) {
-      // Fallback to curated list
-      return FAL_POPULAR_MODELS;
-    }
-
-    const data = await response.json();
-
-    if (data.models && Array.isArray(data.models)) {
-      return data.models.map((m: { endpoint_id: string; name?: string; description?: string }) => ({
-        id: m.endpoint_id,
-        name: m.name || m.endpoint_id.split('/').pop() || m.endpoint_id,
-        description: m.description,
-      }));
-    }
-
-    return FAL_POPULAR_MODELS;
+    return allModels.length > 0 ? allModels : FAL_POPULAR_MODELS;
   } catch {
     // Fallback to curated list on error
     return FAL_POPULAR_MODELS;
